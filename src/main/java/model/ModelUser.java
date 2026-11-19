@@ -4,7 +4,7 @@ public class ModelUser {
 	 	private int userId;
 	    private String fullName;
 	    private String email;
-	    private String password;
+	    private String password_hash;
 	    private String role = "USER"; // Mặc định là USER giống schema
 	    private String createdAt;
 
@@ -13,19 +13,19 @@ public class ModelUser {
 	    }
 
 	    // 2. Constructor dùng khi tạo mới User (chưa có userId và createdAt)
-	    public ModelUser(String fullName, String email, String password, String role) {
+	    public ModelUser(String fullName, String email, String password_hash, String role) {
 	        this.fullName = fullName;
 	        this.email = email;
-	        this.password = password;
+	        this.password_hash = password_hash;
 	        this.role = role;
 	    }
 
 	    // 3. Constructor đầy đủ (dùng khi đọc dữ liệu từ MySQL lên)
-	    public ModelUser(int userId, String fullName, String email, String password, String role, String createdAt) {
+	    public ModelUser(int userId, String fullName, String email, String password_hash, String role, String createdAt) {
 	        this.userId = userId;
 	        this.fullName = fullName;
 	        this.email = email;
-	        this.password = password;
+	        this.password_hash = password_hash;
 	        this.role = role;
 	        this.createdAt = createdAt;
 	    }
@@ -55,12 +55,12 @@ public class ModelUser {
 	        this.email = email;
 	    }
 
-	    public String getPassword() {
-	        return password;
+	    public String getpassword_hash() {
+	        return password_hash;
 	    }
 
-	    public void setPassword(String password) {
-	        this.password = password;
+	    public void setpassword_hash(String password_hash) {
+	        this.password_hash = password_hash;
 	    }
 
 	    public String getRole() {
