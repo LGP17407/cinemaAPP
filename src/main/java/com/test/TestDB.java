@@ -30,7 +30,7 @@ public class TestDB {
 		    }
 		    System.out.println();                       // xuống dòng sau mỗi dòng dữ liệu
 		}
-		
+		//TEST
 		
 		}
 		catch (SQLException ex) {
