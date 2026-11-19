@@ -41,3 +41,57 @@ Statement st = null;
 				st = null;
 			}
 		}
+		
+		
+		
+		
+		
+			
+		int cols = rs.getMetaData().getColumnCount();   // số cột của bảng
+		while (rs.next()) {                             // duyệt từng dòng
+		    for (int i = 1; i <= cols; i++) {           // duyệt từng cột (đếm từ 1)
+		    	if( i == 1)
+		    		System.out.print(rs.getString(i));
+		    	else
+		    		System.out.print("\t\t" + rs.getString(i));
+		    }
+		    System.out.println();                       // xuống dòng sau mỗi dòng dữ liệu
+		}
+		//TEST
+		
+		
+		
+		
+			String fullName, email, password, passwordCheck;
+		Scanner sc = new Scanner(System.in);
+		System.out.println("nhập họ và tên: ");
+		fullName = sc.nextLine();
+		System.out.println("nhập email: ");
+		email = sc.nextLine();
+		System.out.println("nhập mật khẩu: ");
+		password = sc.nextLine();
+		System.out.println("nhập lại mật khẩu: ");
+		passwordCheck = sc.nextLine();
+
+		if (password.equals(passwordCheck)) 
+			password = PasswordUtil.hash(password);
+
+		try {
+			PreparedStatement pSt = null;
+			ResultSet rs = null;
+			
+			String sql = "insert into users(full_name, email, password_hash) values (?, ?, ? );";
+			pSt = dbConnect.getConnection().prepareStatement(sql);
+			pSt.setString(1, fullName);
+			pSt.setString(2, email);
+			pSt.setString(3, password);
+			pSt.executeUpdate();
+
+		}
+		catch (SQLException ex) {
+
+			System.out.println("SQLException: " + ex.getMessage());
+		}
+		
+		
+		
