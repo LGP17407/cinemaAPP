@@ -44,42 +44,43 @@ public class UserServices {
 		}
 	}
 	
-	public static boolean signIn() {
-		DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
-		dbConnect.createConnection();
-		String email, password;
-		System.out.println("nhập gmail: ");
-		email = sc.nextLine();
-		System.out.println("nhập mật khẩu: ");
-		password = sc.nextLine();
-		
-		try { 
-			PreparedStatement pSt = null;	
-			ResultSet rs = null;
-			String sql = "select password_hash from users where email = ?;";
-			pSt = dbConnect.getConnection().prepareStatement(sql);
-			pSt.setString(1, email);
-			rs = pSt.executeQuery();
-			rs.next();
-			// sử lý lỗi khi bảng rỗng
-			String passwordDB = rs.getString(1);
-			password = PasswordUtil.hash(password);
-			if (passwordDB.equals(password)) {
-				System.out.println("Đăng nhập thành công");
-				return true;
-			}
-			else {
-				System.out.println("Đăng nhập thất bại, sai email hoặc password");
-				return false;
-			}
-				
-		}
-		catch (SQLException ex) {
-			
-			System.out.println("SQLException: " + ex.getMessage() + ex.getStackTrace().toString());
-			
-		}
-		return false;
+	public static String signIn() {			// signIn khi đăng nhập thành công thì return role của user, không thành công return "failed"
+	    DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
+	    dbConnect.createConnection();
+
+	    System.out.println("nhập gmail: ");
+	    String email = sc.nextLine();
+	    System.out.println("nhập mật khẩu: ");
+	    String password = sc.nextLine();
+
+	    String sql = "select password_hash, role from users where email = ?;";
+
+	    try (PreparedStatement pSt = dbConnect.getConnection().prepareStatement(sql)) {
+	        pSt.setString(1, email);
+
+	        try (ResultSet rs = pSt.executeQuery()) {
+	            if (!rs.next()) {
+	                // email không tồn tại
+	                System.out.println("Đăng nhập thất bại, sai email hoặc password");
+	                return "failed";
+	            }
+
+	            String storedHash = rs.getString("password_hash");
+	            String role = rs.getString("role");
+
+	            if (PasswordUtil.verify(password, storedHash)) {
+	                System.out.println("Đăng nhập thành công");
+	                return role;
+	            } else {
+	                System.out.println("Đăng nhập thất bại, sai email hoặc password");
+	                return "failed";
+	            }
+	        }
+	    } catch (SQLException ex) {
+	        System.out.println("Lỗi CSDL: " + ex.getMessage());
+	        ex.printStackTrace();
+	    }
+	    return "failed";
 	}
 	
 	
