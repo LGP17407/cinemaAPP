@@ -97,6 +97,64 @@ public class AdminServices {
 
 	}
 
+	public static boolean deleteMovie(int movieId) {      // admin có thể xóa phim (xóa mềm)
+		DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
+		
+		String sql = "update movies set is_deleted = 1, status = 'STOPPED' where movie_id = ? and is_deleted = 0";
+	    try (PreparedStatement pSt = dbConnect.getConnection().prepareStatement(sql)) {
+	        pSt.setInt(1, movieId);
+	        int rows = pSt.executeUpdate();
+	        if (rows == 0) {
+	            System.out.println("Không tìm thấy phim (hoặc phim đã bị xóa).");
+	            return false;
+	        }
+	        System.out.println("Đã xóa phim.");
+	        return true;
+	    } catch (SQLException ex) {
+	        System.out.println("Lỗi CSDL: " + ex.getMessage());
+	        return false;
+	    }
+	}
+	
+	public static boolean alterMoviesTitle() {			// chỉnh sửa title phim
+	    Connection conn = DB_CONNECTION.getInstance().createConnection();
+
+	    int idFilm;
+	    while (true) {
+	        System.out.println("mời nhập id phim: ");
+	        try {
+	            idFilm = Integer.parseInt(sc.nextLine().trim());
+	            break;
+	        } catch (NumberFormatException e) {
+	            System.out.println("id phải là một số nguyên.");
+	        }
+	    }
+
+	    String newTitle;
+	    while (true) {
+	        System.out.println("mời nhập title phim mới: ");
+	        newTitle = sc.nextLine().trim();
+	        if (!newTitle.isEmpty())
+	            break;
+	        System.out.println("title không được để trống.");
+	    }
+
+	    String sql = "update movies set title = ? where movie_id = ?";
+	    try (PreparedStatement pSt = conn.prepareStatement(sql)) {
+	        pSt.setString(1, newTitle);
+	        pSt.setInt(2, idFilm);
+	        int rows = pSt.executeUpdate();
+	        if (rows == 0) {
+	            System.out.println("Không tìm thấy phim có id " + idFilm + " (hoặc phim đã bị xóa).");
+	            return false;
+	        }
+	        System.out.println("Đã đổi title thành công.");
+	        return true;
+	    } catch (SQLException ex) {
+	        System.out.println("Lỗi CSDL: " + ex.getMessage());
+	        return false;
+	    }
+	}
 
 
 
