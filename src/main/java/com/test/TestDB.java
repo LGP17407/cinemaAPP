@@ -17,8 +17,8 @@ public class TestDB {
 		DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
 		dbConnect.createConnection();
 		//UserServices.signIn();
-		AdminServices.addMovies();
-		
+		//AdminServices.addMovies();
+		AdminServices.alterMoviesDuration();
 		dbConnect.closeConnection();
 	}
 
