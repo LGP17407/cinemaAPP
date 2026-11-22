@@ -17,7 +17,7 @@ public class LoginController {
     private void handleLogin() {
         String email = emailField.getText().trim();
         String password = passwordField.getText();
-
+        messageLabel.setStyle("-fx-text-fill: red;");
         if (email.isEmpty() || password.isEmpty()) {
             messageLabel.setText("Vui lòng nhập đủ email và mật khẩu.");
             return;
