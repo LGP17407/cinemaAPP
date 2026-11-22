@@ -24,13 +24,14 @@ public class TestDB {
 	public static void main(String[] args) {
 		DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
 		dbConnect.createConnection();
-		
-		//UserServices.signUp();
 		UserServices.signIn();
+		//UserServices.signUp();
 		//AdminServices.addMovies();
 		//AdminServices.alterMoviesDuration();
 		
 		  BookingService bookingService = new BookingService();
+		dbConnect.closeConnection();
+
 
 	        try {
 	            // Gọi hàm đặt vé, nhập dữ liệu trong BookingService
