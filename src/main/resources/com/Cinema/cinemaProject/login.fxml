@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" spacing="12.0"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.Cinema.cinemaProject.LoginController">
+   <padding>
+      <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+   </padding>
+   <Label text="Đăng nhập" style="-fx-font-size: 22px;" />
+   <TextField fx:id="emailField" promptText="Email" />
+   <PasswordField fx:id="passwordField" promptText="Mật khẩu" />
+   <Label fx:id="messageLabel" style="-fx-text-fill: red;" />
+   <Button text="Đăng nhập" onAction="#handleLogin" defaultButton="true" maxWidth="Infinity" />
+</VBox>

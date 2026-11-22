@@ -9,7 +9,9 @@ import db.DB_CONNECTION;
 
 public class UserServices {
 	static Scanner sc = new Scanner(System.in);
-
+	public static final String LOGIN_FAILED = "failed";
+	public static final String LOGIN_ERROR = "error";
+	
 	public static void signUp() {								
 		DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
 		dbConnect.createConnection();
@@ -62,7 +64,7 @@ public class UserServices {
 	            if (!rs.next()) {
 	                // email không tồn tại
 	                System.out.println("Đăng nhập thất bại, sai email hoặc password");
-	                return "failed";
+	                return LOGIN_FAILED;
 	            }
 
 	            String storedHash = rs.getString("password_hash");
@@ -73,7 +75,40 @@ public class UserServices {
 	                return role;
 	            } else {
 	                System.out.println("Đăng nhập thất bại, sai email hoặc password");
-	                return "failed";
+	                return LOGIN_FAILED;
+	            }
+	        }
+	    } catch (SQLException ex) {
+	        System.out.println("Lỗi CSDL: " + ex.getMessage());
+	        ex.printStackTrace();
+	    }
+	    return "failed";
+	}
+	
+	public static String signIn(String email, String password) {			// signIn khi đăng nhập thành công thì return role của user, không thành công return "failed"
+	    DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
+	    dbConnect.createConnection();
+	    String sql = "select password_hash, role from users where email = ?;";
+
+	    try (PreparedStatement pSt = dbConnect.getConnection().prepareStatement(sql)) {
+	        pSt.setString(1, email);
+
+	        try (ResultSet rs = pSt.executeQuery()) {
+	            if (!rs.next()) {
+	                // email không tồn tại
+	                System.out.println("Đăng nhập thất bại, sai email hoặc password");
+	                return LOGIN_FAILED;
+	            }
+
+	            String storedHash = rs.getString("password_hash");
+	            String role = rs.getString("role");
+
+	            if (PasswordUtil.verify(password, storedHash)) {
+	                System.out.println("Đăng nhập thành công");
+	                return role;
+	            } else {
+	                System.out.println("Đăng nhập thất bại, sai email hoặc password");
+	                return LOGIN_FAILED;
 	            }
 	        }
 	    } catch (SQLException ex) {
