@@ -16,9 +16,10 @@ public class TestDB {
 	public static void main(String[] args) {
 		DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
 		dbConnect.createConnection();
-		//UserServices.signIn();
+		UserServices.signIn();
+		//UserServices.signUp();
 		//AdminServices.addMovies();
-		AdminServices.alterMoviesDuration();
+		//AdminServices.alterMoviesDuration();
 		dbConnect.closeConnection();
 	}
 
