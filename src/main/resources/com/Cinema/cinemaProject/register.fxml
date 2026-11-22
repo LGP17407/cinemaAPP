@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" spacing="12.0"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.Cinema.cinemaProject.RegisterController">
+   <padding>
+      <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+   </padding>
+   <Label text="Đăng ký" style="-fx-font-size: 22px;" />
+   <TextField fx:id="fullNameField" promptText="Họ và tên" />
+   <TextField fx:id="emailField" promptText="Email" />
+   <PasswordField fx:id="passwordField" promptText="Mật khẩu (ít nhất 6 ký tự)" />
+   <PasswordField fx:id="confirmPasswordField" promptText="Nhập lại mật khẩu" />
+   <Label fx:id="messageLabel" wrapText="true" style="-fx-text-fill: red;" />
+   <Button text="Đăng ký" onAction="#handleRegister" defaultButton="true" maxWidth="Infinity" />
+   <Hyperlink text="Đã có tài khoản? Đăng nhập" onAction="#goToLogin" />
+</VBox>

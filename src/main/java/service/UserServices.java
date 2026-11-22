@@ -11,8 +11,12 @@ public class UserServices {
 	static Scanner sc = new Scanner(System.in);
 	public static final String LOGIN_FAILED = "failed";
 	public static final String LOGIN_ERROR = "error";
+	public static final String SIGNUP_OK = "ok";
+	public static final String SIGNUP_EMAIL_EXISTS = "email_exists";
+	public static final String SIGNUP_ERROR = "error";
 	
-	public static void signUp() {								
+	
+	public static void signUp() {												//đăng ký ko đối số
 		DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
 		dbConnect.createConnection();
 		String fullName, email, password, passwordCheck;
@@ -44,6 +48,28 @@ public class UserServices {
 		catch (SQLException ex) {
 			System.out.println("SQLException: " + ex.getMessage());
 		}
+	}
+	
+	public static String signUp(String fullName, String email, String password) { 		//đăng ký có đối số
+	    DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
+	    if (dbConnect.createConnection() == null) {
+	        return SIGNUP_ERROR;
+	    }
+
+	    String sql = "insert into users(full_name, email, password_hash) values (?, ?, ?)";
+	    try (PreparedStatement pSt = dbConnect.getConnection().prepareStatement(sql)) {
+	        pSt.setString(1, fullName);
+	        pSt.setString(2, email);
+	        pSt.setString(3, PasswordUtil.hash(password));
+	        pSt.executeUpdate();
+	        return SIGNUP_OK;
+	    } catch (SQLException ex) {
+	        if (ex.getErrorCode() == 1062) {      // 1062 = trùng giá trị UNIQUE (email)
+	            return SIGNUP_EMAIL_EXISTS;
+	        }
+	        System.out.println("SQLException: " + ex.getMessage());
+	        return SIGNUP_ERROR;
+	    }
 	}
 	
 	public static String signIn() {			// signIn khi đăng nhập thành công thì return role của user, không thành công return "failed"

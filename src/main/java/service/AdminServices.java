@@ -196,7 +196,7 @@ public class AdminServices {
 		}
 	}
 
-	public static boolean alterMoviesPosterUrl() {			// chỉnh sửa description phim 
+	public static boolean alterMoviesPosterUrl() {			// chỉnh sửa PosterUrl phim 
 		Connection conn = DB_CONNECTION.getInstance().createConnection();
 
 		int idFilm;
