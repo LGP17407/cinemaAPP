@@ -11,15 +11,43 @@ import java.sql.Statement;
 import java.util.Scanner;
 import service.*; 
 
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import model.ModelTickets;
+
 public class TestDB {
 
 	public static void main(String[] args) {
 		DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
 		dbConnect.createConnection();
-		//UserServices.signIn();
+		
+		//UserServices.signUp();
+		UserServices.signIn();
 		//AdminServices.addMovies();
-		AdminServices.alterMoviesDuration();
-		dbConnect.closeConnection();
-	}
+		//AdminServices.alterMoviesDuration();
+		
+		  BookingService bookingService = new BookingService();
 
+	        try {
+	            // Gọi hàm đặt vé, nhập dữ liệu trong BookingService
+	            List<ModelTickets> tickets =
+	                    bookingService.bookTickets();
+
+	            System.out.println("\n===== KET QUA DAT VE =====");
+	            System.out.println("Dat ve thanh cong!");
+	            System.out.println("So ve da dat: " + tickets.size());
+
+	        } catch (SQLException e) {
+	            System.out.println("Loi database: " + e.getMessage());
+
+	        } catch (Exception e) {
+	            System.out.println("Dat ve that bai: " + e.getMessage());
+	        }
+	    }
+		
+		/// booking
 }

@@ -8,7 +8,7 @@ public class DB_CONNECTION {
 	// 0. các biến để kết nối tới database
 	String url = "jdbc:mysql://localhost:3306/cinema_management?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh";
 	String user = "root";
-	String password = "root";
+	String password = "@Sigma2006.sql";
 
 	// 1. Biến instance duy nhất của class này
 	private static DB_CONNECTION instance;
