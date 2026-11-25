@@ -1,83 +1,89 @@
+
 package model;
 
 public class ModelUser {
-		public enum Role { USER, ADMIN }
 
-		private int userId;
-	    private String fullName;
-	    private String email;
-	    private String password_hash;
-	    private Role role = Role.USER; // Mặc định là USER giống schema
-	    private String createdAt;
+    private int userId;
+    private String fullName;
+    private String email;
+    private String password_hash;
+    private String role = "USER";
+    private String createdAt;
 
-	    // 1. Constructor rỗng
-	    public ModelUser() {
-	    }
+    // Constructor rỗng
+    public ModelUser() {
+    }
 
-	    // 2. Constructor dùng khi tạo mới User (chưa có userId và createdAt)
-	    public ModelUser(String fullName, String email, String password_hash, Role role) {
-	        this.fullName = fullName;
-	        this.email = email;
-	        this.password_hash = password_hash;
-	        this.role = role;
-	    }
+    // Constructor tạo User mới
+    public ModelUser(String fullName, String email,
+                     String password_hash, String role) {
 
-	    // 3. Constructor đầy đủ (dùng khi đọc dữ liệu từ MySQL lên)
-	    public ModelUser(int userId, String fullName, String email, String password_hash, Role role, String createdAt) {
-	        this.userId = userId;
-	        this.fullName = fullName;
-	        this.email = email;
-	        this.password_hash = password_hash;
-	        this.role = role;
-	        this.createdAt = createdAt;
-	    }
+        this.fullName = fullName;
+        this.email = email;
+        this.password_hash = password_hash;
+        this.role = role;
+    }
 
-	    // Getters & Setters
-	    public int getUserId() {
-	        return userId;
-	    }
+    // Constructor đầy đủ
+    public ModelUser(int userId, String fullName, String email,
+                     String password_hash, String role,
+                     String createdAt) {
 
-	    public void setUserId(int userId) {
-	        this.userId = userId;
-	    }
+        this.userId = userId;
+        this.fullName = fullName;
+        this.email = email;
+        this.password_hash = password_hash;
+        this.role = role;
+        this.createdAt = createdAt;
+    }
 
-	    public String getFullName() {
-	        return fullName;
-	    }
+    // Getters & Setters
 
-	    public void setFullName(String fullName) {
-	        this.fullName = fullName;
-	    }
+    public int getUserId() {
+        return userId;
+    }
 
-	    public String getEmail() {
-	        return email;
-	    }
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
-	    public void setEmail(String email) {
-	        this.email = email;
-	    }
+    public String getFullName() {
+        return fullName;
+    }
 
-	    public String getpassword_hash() {
-	        return password_hash;
-	    }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-	    public void setpassword_hash(String password_hash) {
-	        this.password_hash = password_hash;
-	    }
+    public String getEmail() {
+        return email;
+    }
 
-	    public Role getRole() {
-	        return role;
-	    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	    public void setRole(Role role) {
-	        this.role = role;
-	    }
+    public String getpassword_hash() {
+        return password_hash;
+    }
 
-	    public String getCreatedAt() {
-	        return createdAt;
-	    }
+    public void setpassword_hash(String password_hash) {
+        this.password_hash = password_hash;
+    }
 
-	    public void setCreatedAt(String createdAt) {
-	        this.createdAt = createdAt;
-	    }
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
 }

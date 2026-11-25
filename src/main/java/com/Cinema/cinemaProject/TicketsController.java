@@ -52,6 +52,13 @@ public class TicketsController {
         statusLabel.setVisible(false);
         statusLabel.setManaged(false);
 
+        if (!Session.isLoggedIn()) {
+            statusLabel.setText("Vui lòng đăng nhập để xem vé.");
+            statusLabel.setVisible(true);
+            statusLabel.setManaged(true);
+            return;
+        }
+
         try {
             List<BookedTicketView> tickets =
                     BookingService.getBookedTicketsByEmail(Session.getEmail());
@@ -67,6 +74,7 @@ public class TicketsController {
                 ticketsListBox.getChildren().add(createTicketCard(ticket));
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             statusLabel.setText("Không thể tải danh sách vé từ cơ sở dữ liệu.");
             statusLabel.setVisible(true);
             statusLabel.setManaged(true);

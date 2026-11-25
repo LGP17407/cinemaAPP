@@ -1,3 +1,4 @@
+
 package service;
 
 import java.sql.Connection;
@@ -8,179 +9,240 @@ import java.util.Scanner;
 
 import db.DB_CONNECTION;
 import model.ModelUser;
+import com.Cinema.cinemaProject.Session;
 
 public class UserServices {
-	static Scanner sc = new Scanner(System.in);
-	public static final String LOGIN_FAILED = "failed";
-	public static final String LOGIN_ERROR = "error";
-	public static final String SIGNUP_OK = "ok";
-	public static final String SIGNUP_EMAIL_EXISTS = "email_exists";
-	public static final String SIGNUP_ERROR = "error";
-	
-	
-	public static void signUp() {												//đăng ký ko đối số
-		DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
-		dbConnect.createConnection();
-		String fullName, email, password, passwordCheck;
-		System.out.println("nhập họ và tên: ");
-		fullName = sc.nextLine();
-		System.out.println("nhập email: ");
-		email = sc.nextLine();
-		System.out.println("nhập mật khẩu: ");
-		password = sc.nextLine();
-		System.out.println("nhập lại mật khẩu: ");
-		passwordCheck = sc.nextLine();
-		while (!password.equals(passwordCheck)) {
-			System.out.println("mật khẩu nhập lại chưa đúng");
-			System.out.println("mời nhập lại: ");
-			passwordCheck = sc.nextLine();
-		}
 
-		password = PasswordUtil.hash(password);
+    static Scanner sc = new Scanner(System.in);
 
-		try {
-			PreparedStatement pSt = null;		
-			String sql = "insert into users(full_name, email, password_hash) values (?, ?, ? );";
-			pSt = dbConnect.getConnection().prepareStatement(sql);
-			pSt.setString(1, fullName);
-			pSt.setString(2, email);
-			pSt.setString(3, password);
-			pSt.executeUpdate();
-		}
-		catch (SQLException ex) {
-			System.out.println("SQLException: " + ex.getMessage());
-		}
-	}
-	
-	public static String signUp(String fullName, String email, String password) { 		//đăng ký có đối số
-	    DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
-	    if (dbConnect.createConnection() == null) {
-	        return SIGNUP_ERROR;
-	    }
+    public static final String LOGIN_FAILED = "failed";
+    public static final String LOGIN_ERROR = "error";
 
-	    String sql = "insert into users(full_name, email, password_hash) values (?, ?, ?)";
-	    try (PreparedStatement pSt = dbConnect.getConnection().prepareStatement(sql)) {
-	        pSt.setString(1, fullName);
-	        pSt.setString(2, email);
-	        pSt.setString(3, PasswordUtil.hash(password));
-	        pSt.executeUpdate();
-	        return SIGNUP_OK;
-	    } catch (SQLException ex) {
-	        if (ex.getErrorCode() == 1062) {      // 1062 = trùng giá trị UNIQUE (email)
-	            return SIGNUP_EMAIL_EXISTS;
-	        }
-	        System.out.println("SQLException: " + ex.getMessage());
-	        return SIGNUP_ERROR;
-	    }
-	}
-	
-	public static String signIn() {			// signIn khi đăng nhập thành công thì return role của user, không thành công return "failed"
-	    DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
-	    dbConnect.createConnection();
+    public static final String SIGNUP_OK = "ok";
+    public static final String SIGNUP_EMAIL_EXISTS = "email_exists";
+    public static final String SIGNUP_ERROR = "error";
 
-	    System.out.println("nhập gmail: ");
-	    String email = sc.nextLine();
-	    System.out.println("nhập mật khẩu: ");
-	    String password = sc.nextLine();
+    // Đăng ký không đối số (Console)
+    public static void signUp() {
 
-	    String sql = "select password_hash, role from users where email = ?;";
+        DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
+        dbConnect.createConnection();
 
-	    try (PreparedStatement pSt = dbConnect.getConnection().prepareStatement(sql)) {
-	        pSt.setString(1, email);
+        String fullName, email, password, passwordCheck;
 
-	        try (ResultSet rs = pSt.executeQuery()) {
-	            if (!rs.next()) {
-	                // email không tồn tại
-	                System.out.println("Đăng nhập thất bại, sai email hoặc password");
-	                return LOGIN_FAILED;
-	            }
+        System.out.println("Nhập họ và tên: ");
+        fullName = sc.nextLine();
 
-	            String storedHash = rs.getString("password_hash");
-	            String role = rs.getString("role");
+        System.out.println("Nhập email: ");
+        email = sc.nextLine();
 
-	            if (PasswordUtil.verify(password, storedHash)) {
-	                System.out.println("Đăng nhập thành công");
-	                return role;
-	            } else {
-	                System.out.println("Đăng nhập thất bại, sai email hoặc password");
-	                return LOGIN_FAILED;
-	            }
-	        }
-	    } catch (SQLException ex) {
-	        System.out.println("Lỗi CSDL: " + ex.getMessage());
-	        ex.printStackTrace();
-	    }
-	    return "failed";
-	}
-	
-	public static String signIn(String email, String password) {			// signIn khi đăng nhập thành công thì return role của user, không thành công return "failed"
-	    DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
-	    dbConnect.createConnection();
-	    String sql = "select password_hash, role from users where email = ?;";
+        System.out.println("Nhập mật khẩu: ");
+        password = sc.nextLine();
 
-	    try (PreparedStatement pSt = dbConnect.getConnection().prepareStatement(sql)) {
-	        pSt.setString(1, email);
+        System.out.println("Nhập lại mật khẩu: ");
+        passwordCheck = sc.nextLine();
 
-	        try (ResultSet rs = pSt.executeQuery()) {
-	            if (!rs.next()) {
-	                // email không tồn tại
-	                System.out.println("Đăng nhập thất bại, sai email hoặc password");
-	                return LOGIN_FAILED;
-	            }
+        while (!password.equals(passwordCheck)) {
+            System.out.println("Mật khẩu nhập lại chưa đúng");
+            System.out.println("Mời nhập lại: ");
+            passwordCheck = sc.nextLine();
+        }
 
-	            String storedHash = rs.getString("password_hash");
-	            String role = rs.getString("role");
+        password = PasswordUtil.hash(password);
 
-	            if (PasswordUtil.verify(password, storedHash)) {
-	                System.out.println("Đăng nhập thành công");
-	                return role;
-	            } else {
-	                System.out.println("Đăng nhập thất bại, sai email hoặc password");
-	                return LOGIN_FAILED;
-	            }
-	        }
-	    } catch (SQLException ex) {
-	        System.out.println("Lỗi CSDL: " + ex.getMessage());
-	        ex.printStackTrace();
-	    }
-	    return "failed";
-	}
+        String sql = "INSERT INTO users(full_name, email, password_hash) "
+                   + "VALUES (?, ?, ?)";
 
-	/**
-	 * Lấy thông tin hồ sơ người dùng theo email (không trả về password_hash).
-	 */
-	public static ModelUser getUserByEmail(String email) {
-	    if (email == null || email.isBlank()) {
-	        return null;
-	    }
+        try (PreparedStatement pSt =
+                dbConnect.getConnection().prepareStatement(sql)) {
 
-	    DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
-	    Connection conn = dbConnect.createConnection();
-	    if (conn == null) {
-	        return null;
-	    }
+            pSt.setString(1, fullName);
+            pSt.setString(2, email);
+            pSt.setString(3, password);
 
-	    String sql = "SELECT user_id, full_name, email, role, DATE_FORMAT(created_at, '%d/%m/%Y') AS created_at "
-	               + "FROM users WHERE email = ?";
-	    try (PreparedStatement pSt = conn.prepareStatement(sql)) {
-	        pSt.setString(1, email.trim());
-	        try (ResultSet rs = pSt.executeQuery()) {
-	            if (rs.next()) {
-	                return new ModelUser(
-	                    rs.getInt("user_id"),
-	                    rs.getString("full_name"),
-	                    rs.getString("email"),
-	                    null,
-	                    rs.getString("role"),
-	                    rs.getString("created_at")
-	                );
-	            }
-	        }
-	    } catch (SQLException ex) {
-	        System.out.println("Lỗi CSDL: " + ex.getMessage());
-	        ex.printStackTrace();
-	    }
-	    return null;
-	}
+            pSt.executeUpdate();
 
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+        }
+    }
+
+    // Đăng ký có đối số (JavaFX)
+    public static String signUp(String fullName, String email,
+                                String password) {
+
+        DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
+
+        Connection conn = dbConnect.createConnection();
+
+        if (conn == null) {
+            return SIGNUP_ERROR;
+        }
+
+        String sql = "INSERT INTO users(full_name, email, password_hash) "
+                   + "VALUES (?, ?, ?)";
+
+        try (PreparedStatement pSt = conn.prepareStatement(sql)) {
+
+            pSt.setString(1, fullName);
+            pSt.setString(2, email);
+            pSt.setString(3, PasswordUtil.hash(password));
+
+            pSt.executeUpdate();
+
+            return SIGNUP_OK;
+
+        } catch (SQLException ex) {
+
+            if (ex.getErrorCode() == 1062) {
+                return SIGNUP_EMAIL_EXISTS;
+            }
+
+            System.out.println("SQLException: " + ex.getMessage());
+            return SIGNUP_ERROR;
+        }
+    }
+
+    // Đăng nhập không đối số (Console)
+    public static String signIn() {
+
+        DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
+        Connection conn = dbConnect.createConnection();
+
+        if (conn == null) {
+            return LOGIN_ERROR;
+        }
+
+        System.out.println("Nhập email: ");
+        String email = sc.nextLine();
+
+        System.out.println("Nhập mật khẩu: ");
+        String password = sc.nextLine();
+
+        String sql = "SELECT password_hash, role "
+                   + "FROM users WHERE email = ?";
+
+        try (PreparedStatement pSt = conn.prepareStatement(sql)) {
+
+            pSt.setString(1, email);
+
+            try (ResultSet rs = pSt.executeQuery()) {
+
+                if (!rs.next()) {
+                    return LOGIN_FAILED;
+                }
+
+                String storedHash = rs.getString("password_hash");
+                String role = rs.getString("role");
+
+                if (PasswordUtil.verify(password, storedHash)) {
+                    System.out.println("Đăng nhập thành công");
+                    return role;
+                }
+
+                return LOGIN_FAILED;
+            }
+
+        } catch (SQLException ex) {
+
+            System.out.println("Lỗi CSDL: " + ex.getMessage());
+            ex.printStackTrace();
+
+            return LOGIN_ERROR;
+        }
+    }
+
+    // Đăng nhập có đối số (JavaFX)
+    public static String signIn(String email, String password) {
+
+        DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
+        Connection conn = dbConnect.createConnection();
+
+        if (conn == null) {
+            return LOGIN_ERROR;
+        }
+
+        String sql = "SELECT user_id, password_hash, role "
+                   + "FROM users WHERE email = ?";
+
+        try (PreparedStatement pSt = conn.prepareStatement(sql)) {
+
+            pSt.setString(1, email.trim());
+
+            try (ResultSet rs = pSt.executeQuery()) {
+
+                if (!rs.next()) {
+                    return LOGIN_FAILED;
+                }
+
+                int userId = rs.getInt("user_id");
+                String storedHash = rs.getString("password_hash");
+                String role = rs.getString("role");
+
+                if (PasswordUtil.verify(password, storedHash)) {
+
+                    Session.login(userId, email, role);
+
+                    System.out.println("Đăng nhập thành công");
+
+                    return role;
+                }
+
+                return LOGIN_FAILED;
+            }
+
+        } catch (SQLException ex) {
+
+            System.out.println("Lỗi CSDL: " + ex.getMessage());
+            ex.printStackTrace();
+
+            return LOGIN_ERROR;
+        }
+    }
+
+    // Lấy thông tin người dùng theo email
+    public static ModelUser getUserByEmail(String email) {
+
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+
+        DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
+        Connection conn = dbConnect.createConnection();
+
+        if (conn == null) {
+            return null;
+        }
+
+        String sql = "SELECT user_id, full_name, email, role, "
+                   + "DATE_FORMAT(created_at, '%d/%m/%Y') AS created_at "
+                   + "FROM users WHERE email = ?";
+
+        try (PreparedStatement pSt = conn.prepareStatement(sql)) {
+
+            pSt.setString(1, email.trim());
+
+            try (ResultSet rs = pSt.executeQuery()) {
+
+                if (rs.next()) {
+
+                    return new ModelUser(
+                        rs.getInt("user_id"),
+                        rs.getString("full_name"),
+                        rs.getString("email"),
+                        null,
+                        rs.getString("role"),
+                        rs.getString("created_at")
+                    );
+                }
+            }
+
+        } catch (SQLException ex) {
+
+            System.out.println("Lỗi CSDL: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
 }

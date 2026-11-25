@@ -79,4 +79,7 @@ public class ModelSeats {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    /** Mã ghế hiển thị, ví dụ "A1". */
+    public String getCode() { return seatRow + seatNumber; }
 }

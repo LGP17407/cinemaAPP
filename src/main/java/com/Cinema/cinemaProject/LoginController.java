@@ -38,7 +38,6 @@ public class LoginController {
         messageLabel.setStyle("-fx-text-fill: green;");
         messageLabel.setText("Đăng nhập thành công, role: " + result);
      // result lúc này là role: "ADMIN" hoặc "USER"
-        Session.login(email, result);
         try {
             Stage stage = (Stage) emailField.getScene().getWindow();
             App.setRoot("home");
