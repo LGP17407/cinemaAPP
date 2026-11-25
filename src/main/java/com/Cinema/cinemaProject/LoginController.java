@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import service.UserServices;
 import java.io.IOException;
 
@@ -36,6 +37,17 @@ public class LoginController {
 
         messageLabel.setStyle("-fx-text-fill: green;");
         messageLabel.setText("Đăng nhập thành công, role: " + result);
+     // result lúc này là role: "ADMIN" hoặc "USER"
+        Session.login(email, result);
+        try {
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            App.setRoot("home");
+            stage.setMaximized(true);
+        } catch (IOException e) {
+            messageLabel.setText("Không mở được trang chủ.");
+            e.printStackTrace();
+        }
+        
     }
     
     @FXML
@@ -47,6 +59,8 @@ public class LoginController {
             e.printStackTrace();
         }
     }
+    
+    
     
     
 }
