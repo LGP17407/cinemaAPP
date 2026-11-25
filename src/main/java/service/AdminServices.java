@@ -11,9 +11,11 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import model.Record;
 
 
@@ -607,25 +609,53 @@ public class AdminServices {
 		return rooms;
 	}
 
-	public static Map<Integer, int[]> getSeatStatusCountsByRoom() throws SQLException {
+	/**
+	 * Thống kê ghế theo từng suất chiếu:
+	 * [0] = tổng số ghế thuộc phòng của suất chiếu,
+	 * [1] = số ghế đã có vé ứng với suất chiếu đó,
+	 * [2] = số ghế trống ở suất này (thuộc phòng của suất đó và chưa có vé nào ứng với (suất này, ghế này)).
+	 */
+	public static Map<Integer, int[]> getSeatStatsByShowtime() throws SQLException {
 		Connection connection = requireConnection();
-		String sql = "SELECT room_id, "
-				+ "SUM(CASE WHEN status = 'AVAILABLE' THEN 1 ELSE 0 END) AS avail_cnt, "
-				+ "SUM(CASE WHEN status = 'MAINTENANCE' THEN 1 ELSE 0 END) AS maint_cnt, "
-				+ "SUM(CASE WHEN status = 'UNAVAILABLE' THEN 1 ELSE 0 END) AS unavail_cnt "
-				+ "FROM seats GROUP BY room_id";
-		Map<Integer, int[]> counts = new HashMap<>();
+		String sql = "SELECT st.showtime_id, "
+				+ "COUNT(s.seat_id) AS total_room_seats, "
+				+ "COUNT(t.ticket_id) AS booked_seats, "
+				+ "SUM(CASE WHEN t.ticket_id IS NULL THEN 1 ELSE 0 END) AS empty_seats "
+				+ "FROM showtimes st "
+				+ "JOIN seats s ON s.room_id = st.room_id "
+				+ "LEFT JOIN tickets t ON t.showtime_id = st.showtime_id AND t.seat_id = s.seat_id "
+				+ "WHERE st.is_deleted = 0 "
+				+ "GROUP BY st.showtime_id";
+		Map<Integer, int[]> stats = new HashMap<>();
 		try (PreparedStatement ps = connection.prepareStatement(sql);
 			 ResultSet rs = ps.executeQuery()) {
 			while (rs.next()) {
-				counts.put(rs.getInt("room_id"), new int[] {
-						rs.getInt("avail_cnt"),
-						rs.getInt("maint_cnt"),
-						rs.getInt("unavail_cnt")
+				stats.put(rs.getInt("showtime_id"), new int[] {
+						rs.getInt("total_room_seats"),
+						rs.getInt("booked_seats"),
+						rs.getInt("empty_seats")
 				});
 			}
 		}
-		return counts;
+		return stats;
+	}
+
+	/**
+	 * Lấy tập seat_id đã có vé ứng với một suất chiếu.
+	 */
+	public static Set<Integer> getBookedSeatIdsByShowtime(int showtimeId) throws SQLException {
+		Connection connection = requireConnection();
+		String sql = "SELECT seat_id FROM tickets WHERE showtime_id = ?";
+		Set<Integer> bookedIds = new HashSet<>();
+		try (PreparedStatement ps = connection.prepareStatement(sql)) {
+			ps.setInt(1, showtimeId);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					bookedIds.add(rs.getInt("seat_id"));
+				}
+			}
+		}
+		return bookedIds;
 	}
 
 	public static List<Record.seats> getSeatsByRoom(int roomId) throws SQLException {

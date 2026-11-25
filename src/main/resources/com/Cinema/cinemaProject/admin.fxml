@@ -188,45 +188,52 @@
             </HBox>
          </Tab>
 
-         <!-- ==================== TAB 3: QUẢN LÝ PHÒNG & GHẾ ==================== -->
+         <!-- ==================== TAB 3: QUẢN LÝ PHÒNG & GHẾ THEO SUẤT CHIẾU ==================== -->
          <Tab text="Quản lý phòng &amp; ghế">
             <HBox spacing="20.0">
                <padding>
                   <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                </padding>
 
-               <VBox prefWidth="420.0" minWidth="380.0" spacing="10.0"
+               <VBox prefWidth="540.0" minWidth="480.0" spacing="10.0"
                      style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
                   <padding>
                      <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                   </padding>
                   <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <Label text="Danh sách phòng chiếu" style="-fx-font-size: 17px; -fx-font-weight: bold;" />
+                     <Label text="Phòng &amp; ghế theo suất chiếu" style="-fx-font-size: 17px; -fx-font-weight: bold;" />
                      <Region HBox.hgrow="ALWAYS" />
                      <Button onAction="#handleRefreshRooms" text="Làm mới" />
                   </HBox>
-                  <TableView fx:id="roomsTable" VBox.vgrow="ALWAYS">
+                  <TableView fx:id="roomShowtimesTable" VBox.vgrow="ALWAYS">
                      <columns>
-                        <TableColumn fx:id="roomNameCol" prefWidth="95.0" text="Phòng" />
-                        <TableColumn fx:id="roomTotalCol" prefWidth="70.0" text="Tổng ghế" />
-                        <TableColumn fx:id="roomAvailCol" prefWidth="75.0" text="Khả dụng" />
-                        <TableColumn fx:id="roomMaintCol" prefWidth="75.0" text="Bảo trì" />
-                        <TableColumn fx:id="roomUnavailCol" prefWidth="75.0" text="Hỏng" />
+                        <TableColumn fx:id="rsIdCol" prefWidth="42.0" text="ID" />
+                        <TableColumn fx:id="rsMovieCol" prefWidth="135.0" text="Phim" />
+                        <TableColumn fx:id="rsRoomCol" prefWidth="75.0" text="Phòng" />
+                        <TableColumn fx:id="rsStartCol" prefWidth="112.0" text="Bắt đầu" />
+                        <TableColumn fx:id="rsStatusCol" prefWidth="75.0" text="Trạng thái" />
+                        <TableColumn fx:id="rsTotalSeatsCol" prefWidth="60.0" text="Tổng" />
+                        <TableColumn fx:id="rsBookedSeatsCol" prefWidth="58.0" text="Đã đặt" />
+                        <TableColumn fx:id="rsEmptySeatsCol" prefWidth="72.0" text="Ghế trống" />
                      </columns>
                   </TableView>
                </VBox>
 
-               <VBox HBox.hgrow="ALWAYS" spacing="14.0"
+               <VBox HBox.hgrow="ALWAYS" spacing="12.0"
                      style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
                   <padding>
                      <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                   </padding>
-                  <Label fx:id="roomSeatsTitleLabel" text="Sơ đồ ghế (chọn một phòng ở bên trái)"
+                  <Label fx:id="roomSeatsTitleLabel" text="Sơ đồ ghế theo suất chiếu (chọn một suất ở bên trái)"
                          style="-fx-font-size: 17px; -fx-font-weight: bold;" />
+                  <Label fx:id="roomSeatsSummaryLabel" text=""
+                         style="-fx-text-fill: #444444; -fx-font-size: 13px;"
+                         visible="false" managed="false" />
 
-                  <HBox alignment="CENTER_LEFT" spacing="16.0">
-                     <Label text="■ AVAILABLE (Thường)" style="-fx-text-fill: #2e7d32; -fx-font-weight: bold;" />
-                     <Label text="■ AVAILABLE (VIP)" style="-fx-text-fill: #1565c0; -fx-font-weight: bold;" />
+                  <HBox alignment="CENTER_LEFT" spacing="14.0">
+                     <Label text="■ Trống (Thường)" style="-fx-text-fill: #2e7d32; -fx-font-weight: bold;" />
+                     <Label text="■ Trống (VIP)" style="-fx-text-fill: #1565c0; -fx-font-weight: bold;" />
+                     <Label text="■ Đã đặt ở suất này" style="-fx-text-fill: #6a1b9a; -fx-font-weight: bold;" />
                      <Label text="■ MAINTENANCE" style="-fx-text-fill: #ef6c00; -fx-font-weight: bold;" />
                      <Label text="■ UNAVAILABLE" style="-fx-text-fill: #c62828; -fx-font-weight: bold;" />
                   </HBox>

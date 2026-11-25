@@ -9,11 +9,13 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -29,6 +31,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import model.Record;
@@ -90,15 +93,19 @@ public class AdminController {
     @FXML private Button updateShowtimeBtn;
     @FXML private Button cancelShowtimeBtn;
 
-    // Tab 3: Quản lý phòng & ghế
-    @FXML private TableView<Record.rooms> roomsTable;
-    @FXML private TableColumn<Record.rooms, String> roomNameCol;
-    @FXML private TableColumn<Record.rooms, Number> roomTotalCol;
-    @FXML private TableColumn<Record.rooms, Number> roomAvailCol;
-    @FXML private TableColumn<Record.rooms, Number> roomMaintCol;
-    @FXML private TableColumn<Record.rooms, Number> roomUnavailCol;
+    // Tab 3: Quản lý phòng & ghế theo suất chiếu
+    @FXML private TableView<Record.showTimes> roomShowtimesTable;
+    @FXML private TableColumn<Record.showTimes, Number> rsIdCol;
+    @FXML private TableColumn<Record.showTimes, String> rsMovieCol;
+    @FXML private TableColumn<Record.showTimes, String> rsRoomCol;
+    @FXML private TableColumn<Record.showTimes, String> rsStartCol;
+    @FXML private TableColumn<Record.showTimes, String> rsStatusCol;
+    @FXML private TableColumn<Record.showTimes, Number> rsTotalSeatsCol;
+    @FXML private TableColumn<Record.showTimes, Number> rsBookedSeatsCol;
+    @FXML private TableColumn<Record.showTimes, Number> rsEmptySeatsCol;
 
     @FXML private Label roomSeatsTitleLabel;
+    @FXML private Label roomSeatsSummaryLabel;
     @FXML private GridPane seatsGrid;
     @FXML private Label selectedSeatLabel;
     @FXML private ComboBox<String> seatStatusCombo;
@@ -108,11 +115,12 @@ public class AdminController {
     private final Map<Integer, String> movieTitlesById = new HashMap<>();
     private final Map<Integer, String> roomNamesById = new HashMap<>();
     private Map<Integer, Integer> bookedCountsByShowtime = new HashMap<>();
-    private Map<Integer, int[]> seatCountsByRoom = new HashMap<>();
+    private Map<Integer, int[]> seatStatsByShowtime = new HashMap<>();
+    private Set<Integer> bookedSeatIdsInSelectedShowtime = new HashSet<>();
 
     private Record.movies selectedMovie;
     private Record.showTimes selectedShowtime;
-    private Record.rooms selectedRoom;
+    private Record.showTimes selectedShowtimeForSeats;
     private Record.seats selectedSeat;
 
     @FXML
@@ -400,7 +408,10 @@ public class AdminController {
     private void loadShowtimes() {
         try {
             bookedCountsByShowtime = AdminServices.getBookedTicketCountsByShowtime();
-            showtimesTable.setItems(FXCollections.observableArrayList(AdminServices.getAllShowtimes()));
+            seatStatsByShowtime = AdminServices.getSeatStatsByShowtime();
+            List<Record.showTimes> list = AdminServices.getAllShowtimes();
+            showtimesTable.setItems(FXCollections.observableArrayList(list));
+            syncRoomShowtimesTable(list);
         } catch (SQLException e) {
             showFeedback(stFeedbackLabel, "Lỗi tải lịch chiếu: " + e.getMessage(), true);
         }
@@ -535,27 +546,32 @@ public class AdminController {
     }
 
     // =========================================================================
-    // TAB 3: QUẢN LÝ PHÒNG & GHẾ
+    // TAB 3: QUẢN LÝ PHÒNG & GHẾ THEO SUẤT CHIẾU
     // =========================================================================
 
     private void setupRoomsTab() {
-        roomNameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().roomName()));
-        roomTotalCol.setCellValueFactory(d -> new SimpleIntegerProperty(d.getValue().totalSeats()));
-        roomAvailCol.setCellValueFactory(d -> new SimpleIntegerProperty(
-                seatCountsByRoom.getOrDefault(d.getValue().roomID(), new int[3])[0]));
-        roomMaintCol.setCellValueFactory(d -> new SimpleIntegerProperty(
-                seatCountsByRoom.getOrDefault(d.getValue().roomID(), new int[3])[1]));
-        roomUnavailCol.setCellValueFactory(d -> new SimpleIntegerProperty(
-                seatCountsByRoom.getOrDefault(d.getValue().roomID(), new int[3])[2]));
+        rsIdCol.setCellValueFactory(d -> new SimpleIntegerProperty(d.getValue().showtimeId()));
+        rsMovieCol.setCellValueFactory(d -> new SimpleStringProperty(
+                movieTitlesById.getOrDefault(d.getValue().movieId(), "Movie #" + d.getValue().movieId())));
+        rsRoomCol.setCellValueFactory(d -> new SimpleStringProperty(
+                roomNamesById.getOrDefault(d.getValue().roomId(), "Room #" + d.getValue().roomId())));
+        rsStartCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().startTIme().format(DT_DISPLAY)));
+        rsStatusCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().status()));
+        rsTotalSeatsCol.setCellValueFactory(d -> new SimpleIntegerProperty(
+                seatStatsByShowtime.getOrDefault(d.getValue().showtimeId(), new int[3])[0]));
+        rsBookedSeatsCol.setCellValueFactory(d -> new SimpleIntegerProperty(
+                seatStatsByShowtime.getOrDefault(d.getValue().showtimeId(), new int[3])[1]));
+        rsEmptySeatsCol.setCellValueFactory(d -> new SimpleIntegerProperty(
+                seatStatsByShowtime.getOrDefault(d.getValue().showtimeId(), new int[3])[2]));
 
         seatStatusCombo.setItems(FXCollections.observableArrayList("AVAILABLE", "MAINTENANCE", "UNAVAILABLE"));
         seatStatusCombo.setValue("MAINTENANCE");
         updateSeatStatusBtn.setDisable(true);
 
-        roomsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+        roomShowtimesTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
-                selectedRoom = newVal;
-                loadSeatsForRoom(newVal);
+                selectedShowtimeForSeats = newVal;
+                loadSeatsForShowtime(newVal);
             }
         });
     }
@@ -563,41 +579,75 @@ public class AdminController {
     private void loadRooms() {
         try {
             List<Record.rooms> rooms = AdminServices.getAllRooms();
-            seatCountsByRoom = AdminServices.getSeatStatusCountsByRoom();
             roomNamesById.clear();
             for (Record.rooms r : rooms) {
                 roomNamesById.put(r.roomID(), r.roomName());
             }
-            roomsTable.setItems(FXCollections.observableArrayList(rooms));
             stRoomCombo.setItems(FXCollections.observableArrayList(rooms));
-            if (selectedRoom != null) {
-                for (Record.rooms r : rooms) {
-                    if (r.roomID() == selectedRoom.roomID()) {
-                        roomsTable.getSelectionModel().select(r);
-                        break;
-                    }
-                }
-            } else if (!rooms.isEmpty()) {
-                roomsTable.getSelectionModel().selectFirst();
-            }
         } catch (SQLException e) {
             showFeedback(seatFeedbackLabel, "Lỗi tải danh sách phòng: " + e.getMessage(), true);
         }
     }
 
-    private void loadSeatsForRoom(Record.rooms room) {
+    private void syncRoomShowtimesTable(List<Record.showTimes> showtimes) {
+        Integer keepId = selectedShowtimeForSeats != null ? selectedShowtimeForSeats.showtimeId() : null;
+        roomShowtimesTable.setItems(FXCollections.observableArrayList(showtimes));
+        if (keepId != null) {
+            for (Record.showTimes st : showtimes) {
+                if (st.showtimeId() == keepId) {
+                    roomShowtimesTable.getSelectionModel().select(st);
+                    return;
+                }
+            }
+        }
+        if (!showtimes.isEmpty()) {
+            roomShowtimesTable.getSelectionModel().selectFirst();
+        } else {
+            selectedShowtimeForSeats = null;
+            seatsGrid.getChildren().clear();
+            roomSeatsTitleLabel.setText("Sơ đồ ghế theo suất chiếu (chưa có suất chiếu)");
+            roomSeatsSummaryLabel.setVisible(false);
+            roomSeatsSummaryLabel.setManaged(false);
+        }
+    }
+
+    private void loadSeatsForShowtime(Record.showTimes showtime) {
         seatsGrid.getChildren().clear();
         selectedSeat = null;
         selectedSeatLabel.setText("Chưa chọn ghế nào.");
         updateSeatStatusBtn.setDisable(true);
-        roomSeatsTitleLabel.setText("Sơ đồ ghế: " + room.roomName() + " (" + room.totalSeats() + " ghế)");
+
+        String movieTitle = movieTitlesById.getOrDefault(showtime.movieId(), "Movie #" + showtime.movieId());
+        String roomName = roomNamesById.getOrDefault(showtime.roomId(), "Room #" + showtime.roomId());
+        roomSeatsTitleLabel.setText(String.format("Suất #%d — %s | %s (%s)",
+                showtime.showtimeId(), movieTitle, roomName, showtime.startTIme().format(DT_DISPLAY)));
 
         try {
-            List<Record.seats> seats = AdminServices.getSeatsByRoom(room.roomID());
+            List<Record.seats> seats = AdminServices.getSeatsByRoom(showtime.roomId());
+            bookedSeatIdsInSelectedShowtime = AdminServices.getBookedSeatIdsByShowtime(showtime.showtimeId());
+
+            int totalSeats = seats.size();
+            int emptySeats = 0;
+            int bookedSeats = 0;
+            int maintSeats = 0;
+            int unavailSeats = 0;
+
             Map<String, Integer> rowIndexMap = new LinkedHashMap<>();
             int nextRow = 0;
 
             for (Record.seats seat : seats) {
+                boolean isBooked = bookedSeatIdsInSelectedShowtime.contains(seat.seatId());
+                if (isBooked) {
+                    bookedSeats++;
+                } else {
+                    emptySeats++;
+                }
+                if ("MAINTENANCE".equals(seat.status())) {
+                    maintSeats++;
+                } else if ("UNAVAILABLE".equals(seat.status())) {
+                    unavailSeats++;
+                }
+
                 Integer rowIdx = rowIndexMap.get(seat.seatRow());
                 if (rowIdx == null) {
                     rowIdx = nextRow++;
@@ -611,26 +661,44 @@ public class AdminController {
                 Button seatBtn = new Button(code);
                 seatBtn.setMinWidth(52.0);
                 seatBtn.setMinHeight(36.0);
-                seatBtn.setStyle(getSeatButtonStyle(seat));
-                seatBtn.setOnAction(e -> selectSeat(seat));
+                seatBtn.setStyle(getSeatButtonStyle(seat, isBooked));
+                seatBtn.setTooltip(new Tooltip(String.format("%s (%s) — %s — Trạng thái ghế: %s",
+                        code,
+                        seat.seatType(),
+                        isBooked ? "Đã đặt vé ở suất này" : "Ghế trống ở suất này",
+                        seat.status())));
+                seatBtn.setOnAction(e -> selectSeat(seat, isBooked));
                 seatsGrid.add(seatBtn, seat.seatNumber(), rowIdx);
             }
+
+            roomSeatsSummaryLabel.setText(String.format(
+                    "Ghế trống ở suất này (chưa có vé): %d/%d  |  Đã đặt: %d  |  Bảo trì: %d  |  Hỏng: %d",
+                    emptySeats, totalSeats, bookedSeats, maintSeats, unavailSeats));
+            roomSeatsSummaryLabel.setVisible(true);
+            roomSeatsSummaryLabel.setManaged(true);
         } catch (SQLException e) {
-            showFeedback(seatFeedbackLabel, "Lỗi tải sơ đồ ghế: " + e.getMessage(), true);
+            showFeedback(seatFeedbackLabel, "Lỗi tải sơ đồ ghế theo suất chiếu: " + e.getMessage(), true);
         }
     }
 
-    private void selectSeat(Record.seats seat) {
+    private void selectSeat(Record.seats seat, boolean isBooked) {
         selectedSeat = seat;
         String code = seat.seatRow() + seat.seatNumber();
-        selectedSeatLabel.setText(String.format("Ghế %s (%s) — Trạng thái: %s",
-                code, seat.seatType(), seat.status()));
+        selectedSeatLabel.setText(String.format("Ghế %s (%s) — %s — Trạng thái ghế: %s",
+                code,
+                seat.seatType(),
+                isBooked ? "ĐÃ ĐẶT VÉ ở suất này" : "Trống ở suất này",
+                seat.status()));
         seatStatusCombo.setValue(seat.status());
         updateSeatStatusBtn.setDisable(false);
         hideFeedback(seatFeedbackLabel);
     }
 
-    private String getSeatButtonStyle(Record.seats seat) {
+    private String getSeatButtonStyle(Record.seats seat, boolean isBooked) {
+        if (isBooked) {
+            return "-fx-background-color: #ede7f6; -fx-border-color: #6a1b9a; "
+                    + "-fx-text-fill: #4a148c; -fx-font-weight: bold; -fx-background-radius: 4; -fx-border-radius: 4;";
+        }
         return switch (seat.status()) {
             case "MAINTENANCE" -> "-fx-background-color: #ffe0b2; -fx-border-color: #ef6c00; "
                     + "-fx-text-fill: #e65100; -fx-font-weight: bold; -fx-background-radius: 4; -fx-border-radius: 4;";
@@ -646,28 +714,40 @@ public class AdminController {
 
     @FXML
     private void handleRefreshRooms() {
+        loadMovies();
         loadRooms();
+        loadShowtimes();
         hideFeedback(seatFeedbackLabel);
     }
 
     @FXML
     private void handleUpdateSeatStatus() {
-        if (selectedSeat == null || selectedRoom == null) {
+        if (selectedSeat == null || selectedShowtimeForSeats == null) {
             return;
         }
         String newStatus = seatStatusCombo.getValue();
-        try {
-            String code = selectedSeat.seatRow() + selectedSeat.seatNumber();
-            AdminServices.updateSeatStatus(selectedSeat.seatId(), newStatus);
-            int roomId = selectedRoom.roomID();
-            loadRooms();
-            for (Record.rooms r : roomsTable.getItems()) {
-                if (r.roomID() == roomId) {
-                    selectedRoom = r;
-                    loadSeatsForRoom(r);
-                    break;
-                }
+        String code = selectedSeat.seatRow() + selectedSeat.seatNumber();
+        boolean isBooked = bookedSeatIdsInSelectedShowtime.contains(selectedSeat.seatId());
+
+        if (isBooked && !"AVAILABLE".equals(newStatus)) {
+            String roomName = roomNamesById.getOrDefault(
+                    selectedShowtimeForSeats.roomId(), "Room #" + selectedShowtimeForSeats.roomId());
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                    "Ghế " + code + " đã có vé được đặt ở suất chiếu #"
+                            + selectedShowtimeForSeats.showtimeId() + "!\n"
+                            + "Đổi trạng thái ghế thành " + newStatus + " sẽ áp dụng cho " + roomName
+                            + ". Bạn có chắc chắn muốn tiếp tục?",
+                    ButtonType.OK, ButtonType.CANCEL);
+            confirm.setHeaderText(null);
+            Optional<ButtonType> choice = confirm.showAndWait();
+            if (choice.isEmpty() || choice.get() != ButtonType.OK) {
+                return;
             }
+        }
+
+        try {
+            AdminServices.updateSeatStatus(selectedSeat.seatId(), newStatus);
+            loadShowtimes();
             showFeedback(seatFeedbackLabel,
                     "Đã cập nhật ghế " + code + " thành " + newStatus + ".", false);
         } catch (Exception e) {
