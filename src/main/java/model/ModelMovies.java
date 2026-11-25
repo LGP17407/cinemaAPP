@@ -8,7 +8,9 @@ public class ModelMovies {
     private String status = "SHOWING";     // Mặc định SHOWING giống schema
     private boolean isDeleted = false;     // Mặc định 0 giống schema
     private String createdAt;
-
+    private String posterUrl;
+    private String genre;
+    
     // 1. Constructor rỗng
     public ModelMovies() {
     }
@@ -23,14 +25,15 @@ public class ModelMovies {
 
     // 3. Constructor đầy đủ (dùng khi đọc dữ liệu từ MySQL lên)
     public ModelMovies(int movieId, String title, String description, int durationMins,
-                       String status, boolean isDeleted, String createdAt) {
+                       String status, String genre, String createdAt, String posterUrl) {
         this.movieId = movieId;
         this.title = title;
         this.description = description;
         this.durationMins = durationMins;
         this.status = status;
-        this.isDeleted = isDeleted;
         this.createdAt = createdAt;
+        this.posterUrl = posterUrl;
+        this.genre = genre;
     }
 
     // Getters & Setters
@@ -74,12 +77,12 @@ public class ModelMovies {
         this.status = status;
     }
 
-    public boolean isDeleted() {
+    public boolean getGenre() {
         return isDeleted;
     }
 
-    public void setDeleted(boolean isDeleted) {
-        this.isDeleted = isDeleted;
+    public void setGenre(String Genre) {
+        this.genre = genre;
     }
 
     public String getCreatedAt() {
@@ -88,5 +91,13 @@ public class ModelMovies {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+    
+    public String getPosterUrl() {
+        return posterUrl;
+    }
+
+    public void setPosterUrl(String createdAt) {
+        this.posterUrl = posterUrl;
     }
 }
