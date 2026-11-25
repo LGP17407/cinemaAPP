@@ -1,11 +1,13 @@
 package service;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 
 import db.DB_CONNECTION;
+import model.ModelUser;
 
 public class UserServices {
 	static Scanner sc = new Scanner(System.in);
@@ -143,7 +145,42 @@ public class UserServices {
 	    }
 	    return "failed";
 	}
-	
-	
+
+	/**
+	 * Lấy thông tin hồ sơ người dùng theo email (không trả về password_hash).
+	 */
+	public static ModelUser getUserByEmail(String email) {
+	    if (email == null || email.isBlank()) {
+	        return null;
+	    }
+
+	    DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
+	    Connection conn = dbConnect.createConnection();
+	    if (conn == null) {
+	        return null;
+	    }
+
+	    String sql = "SELECT user_id, full_name, email, role, DATE_FORMAT(created_at, '%d/%m/%Y') AS created_at "
+	               + "FROM users WHERE email = ?";
+	    try (PreparedStatement pSt = conn.prepareStatement(sql)) {
+	        pSt.setString(1, email.trim());
+	        try (ResultSet rs = pSt.executeQuery()) {
+	            if (rs.next()) {
+	                return new ModelUser(
+	                    rs.getInt("user_id"),
+	                    rs.getString("full_name"),
+	                    rs.getString("email"),
+	                    null,
+	                    rs.getString("role"),
+	                    rs.getString("created_at")
+	                );
+	            }
+	        }
+	    } catch (SQLException ex) {
+	        System.out.println("Lỗi CSDL: " + ex.getMessage());
+	        ex.printStackTrace();
+	    }
+	    return null;
+	}
 
 }

@@ -14,8 +14,7 @@ public class HomeController {
     @FXML private Button editButton;
     @FXML private Label userLabel;
 
-    // Các khung nội dung, sau này thêm danh sách vé/phim vào đây
-    @FXML private VBox ticketsBox;
+    // Các khung nội dung, sau này thêm danh sách phim vào đây
     @FXML private VBox showingBox;
     @FXML private VBox upcomingBox;
 
@@ -36,8 +35,21 @@ public class HomeController {
     }
 
     @FXML
+    private void handleTickets() {
+        try {
+            App.setRoot("tickets");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void handleAccount() {
-        showComingSoon("Account");
+        try {
+            App.setRoot("account");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

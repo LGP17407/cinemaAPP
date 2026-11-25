@@ -7,7 +7,7 @@
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.Cinema.cinemaProject.HomeController">
 
-   <!-- Thanh điều hướng: Trang chủ | Account | Chỉnh sửa (chỉ admin) ... Đăng xuất -->
+   <!-- Thanh điều hướng: Trang chủ | Vé đã đặt | Account | Chỉnh sửa (chỉ admin) ... Đăng xuất -->
    <top>
       <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #2b2b40;">
          <padding>
@@ -15,6 +15,8 @@
          </padding>
          <Button fx:id="homeButton" onAction="#handleHome" text="Trang chủ"
                  style="-fx-background-color: #ff9800; -fx-text-fill: white; -fx-font-weight: bold;" />
+         <Button fx:id="ticketsButton" onAction="#handleTickets" text="Vé đã đặt"
+                 style="-fx-background-color: transparent; -fx-text-fill: white;" />
          <Button fx:id="accountButton" onAction="#handleAccount" text="Account"
                  style="-fx-background-color: transparent; -fx-text-fill: white;" />
          <Button fx:id="editButton" onAction="#handleEdit" text="Chỉnh sửa"
@@ -32,42 +34,29 @@
                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
             </padding>
 
-            <!-- Vé đã đặt -->
-            <VBox minHeight="140.0" spacing="8.0"
+            <!-- Phim đang chiếu -->
+            <VBox minHeight="300.0" spacing="8.0"
                   style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
                <padding>
                   <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                </padding>
-               <Label text="Vé đã đặt" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-               <VBox fx:id="ticketsBox" spacing="6.0">
+               <Label text="Phim đang chiếu" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+               <VBox fx:id="showingBox" spacing="6.0">
                   <Label text="Chưa có dữ liệu." style="-fx-text-fill: gray;" />
                </VBox>
             </VBox>
 
-            <!-- Phim đang chiếu | Phim công chiếu -->
-            <HBox spacing="24.0">
-               <VBox HBox.hgrow="ALWAYS" minHeight="300.0" spacing="8.0"
-                     style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
-                  <padding>
-                     <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                  </padding>
-                  <Label text="Phim đang chiếu" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-                  <VBox fx:id="showingBox" spacing="6.0">
-                     <Label text="Chưa có dữ liệu." style="-fx-text-fill: gray;" />
-                  </VBox>
+            <!-- Phim công chiếu -->
+            <VBox minHeight="300.0" spacing="8.0"
+                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
+               <padding>
+                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+               </padding>
+               <Label text="Phim công chiếu" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+               <VBox fx:id="upcomingBox" spacing="6.0">
+                  <Label text="Chưa có dữ liệu." style="-fx-text-fill: gray;" />
                </VBox>
-
-               <VBox HBox.hgrow="ALWAYS" minHeight="300.0" spacing="8.0"
-                     style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
-                  <padding>
-                     <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                  </padding>
-                  <Label text="Phim công chiếu" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-                  <VBox fx:id="upcomingBox" spacing="6.0">
-                     <Label text="Chưa có dữ liệu." style="-fx-text-fill: gray;" />
-                  </VBox>
-               </VBox>
-            </HBox>
+            </VBox>
          </VBox>
       </ScrollPane>
    </center>

@@ -22,7 +22,7 @@ public class AdminServices {
 	}
 
 	//1. lấy thông tin user
-	public ArrayList<ModelUser> getUserList () throws SQLException {
+	/*public ArrayList<ModelUser> getUserList () throws SQLException {
 		ArrayList<ModelUser> userList = new ArrayList();
 		String sql = "SELECT userid, fullname, email, password, role, DATE_FORMAT(createdat, '%d-%m-%Y') as ngay_tao from users";
 		PreparedStatement pSt = null;
@@ -43,7 +43,7 @@ public class AdminServices {
 		}
 
 		return userList;
-	}
+	}*/
 
 	public static void addMovies() {		//Admin có thể thêm phim
 		DB_CONNECTION dbConnect = DB_CONNECTION.getInstance();
@@ -215,7 +215,7 @@ public class AdminServices {
 		newPosterUrl = sc.nextLine().trim();
 
 
-		String sql = "update movies set description = ? where movie_id = ?";
+		String sql = "update movies set poster_url = ? where movie_id = ?";
 		try (PreparedStatement pSt = conn.prepareStatement(sql)) {
 			pSt.setString(1, newPosterUrl);
 			pSt.setInt(2, idFilm);

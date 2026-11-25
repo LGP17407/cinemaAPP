@@ -19,7 +19,7 @@ public class Record {
 						 String title, 
 						 String description, 
 						 int durationMins, 
-						 String status, 
-						 boolean isDeleted, 
+						 String poster_url,
+						 String status, 						
 						 LocalDateTime createdAt) {}
 }

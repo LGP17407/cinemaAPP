@@ -258,8 +258,68 @@ public class BookingService {
 	
 	    // Gọi hàm xử lý đặt vé đã viết trước đó
 	    return bookTickets(userId, showtimeId, seatCodes);
-}
+	}
 
+	/**
+	 * Dữ liệu tóm tắt một vé đã đặt để hiển thị trên giao diện.
+	 */
+	public record BookedTicketView(
+	        int ticketId,
+	        String movieTitle,
+	        String roomName,
+	        String seatCode,
+	        String seatType,
+	        String showtimeStart,
+	        double price,
+	        String bookedAt) {
+	}
 
+	/**
+	 * Lấy danh sách vé đã đặt của người dùng theo email.
+	 */
+	public static List<BookedTicketView> getBookedTicketsByEmail(String email) throws SQLException {
+	    List<BookedTicketView> result = new ArrayList<>();
+	    if (email == null || email.isBlank()) {
+	        return result;
+	    }
+
+	    Connection connection = DB_CONNECTION.getInstance().createConnection();
+	    if (connection == null) {
+	        throw new SQLException("Không thể kết nối cơ sở dữ liệu.");
+	    }
+
+	    String sql = "SELECT t.ticket_id, m.title, r.room_name, "
+	               + "CONCAT(s.seat_row, s.seat_number) AS seat_code, s.seat_type, "
+	               + "DATE_FORMAT(st.start_time, '%d/%m/%Y %H:%i') AS showtime_start, "
+	               + "t.price, "
+	               + "DATE_FORMAT(t.created_at, '%d/%m/%Y %H:%i') AS booked_at "
+	               + "FROM tickets t "
+	               + "JOIN users u ON t.user_id = u.user_id "
+	               + "JOIN showtimes st ON t.showtime_id = st.showtime_id "
+	               + "JOIN movies m ON st.movie_id = m.movie_id "
+	               + "JOIN rooms r ON st.room_id = r.room_id "
+	               + "JOIN seats s ON t.seat_id = s.seat_id "
+	               + "WHERE u.email = ? "
+	               + "ORDER BY t.created_at DESC, t.ticket_id DESC";
+
+	    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+	        ps.setString(1, email.trim());
+	        try (ResultSet rs = ps.executeQuery()) {
+	            while (rs.next()) {
+	                result.add(new BookedTicketView(
+	                        rs.getInt("ticket_id"),
+	                        rs.getString("title"),
+	                        rs.getString("room_name"),
+	                        rs.getString("seat_code"),
+	                        rs.getString("seat_type"),
+	                        rs.getString("showtime_start"),
+	                        rs.getDouble("price"),
+	                        rs.getString("booked_at")
+	                ));
+	            }
+	        }
+	    }
+	    return result;
+	}
 
 }
