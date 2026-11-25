@@ -133,10 +133,14 @@ public class TicketsController {
 
     @FXML
     private void handleEdit() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION,
-                "Tính năng \"Chỉnh sửa\" đang được phát triển.");
-        alert.setHeaderText(null);
-        alert.showAndWait();
+        if (!Session.isAdmin()) {
+            return;
+        }
+        try {
+            App.setRoot("admin");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

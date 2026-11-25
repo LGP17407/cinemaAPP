@@ -11,15 +11,26 @@ public class Record {
 							LocalDateTime startTIme, 
 							LocalDateTime endTime, 
 							double basePrice,
+							String status,
 							boolean isDeleted,
 							LocalDateTime createdAt) {}
 	public record seats(int seatId, int roomId, String seatRow, int seatNumber, String seatType, String status) {}
-	public record rooms(int roomID, String roomName, int totalSeats, LocalDateTime createdAt) {}
+	public record rooms(int roomID, String roomName, int totalSeats, LocalDateTime createdAt) {
+		@Override
+		public String toString() {
+			return roomName + " (" + totalSeats + " ghế)";
+		}
+	}
 	public record movies(int movieId, 
 						 String title, 
 						 String description, 
 						 int durationMins, 
 						 String poster_url,
 						 String status, 						
-						 LocalDateTime createdAt) {}
+						 LocalDateTime createdAt) {
+		@Override
+		public String toString() {
+			return title + " (" + durationMins + " phút - " + status + ")";
+		}
+	}
 }

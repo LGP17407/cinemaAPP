@@ -54,7 +54,14 @@ public class HomeController {
 
     @FXML
     private void handleEdit() {
-        showComingSoon("Chỉnh sửa");
+        if (!Session.isAdmin()) {
+            return;
+        }
+        try {
+            App.setRoot("admin");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
