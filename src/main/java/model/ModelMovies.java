@@ -1,103 +1,69 @@
 package model;
 
+import java.time.LocalDateTime;
+
 public class ModelMovies {
+    public enum Status { SHOWING, COMING_SOON, ENDED }   // chỉnh theo schema của bạn
+
     private int movieId;
     private String title;
     private String description;
     private int durationMins;
-    private String status = "SHOWING";     // Mặc định SHOWING giống schema
-    private boolean isDeleted = false;     // Mặc định 0 giống schema
-    private String createdAt;
-    private String posterUrl;
+    private Status status = Status.SHOWING;
     private String genre;
-    
-    // 1. Constructor rỗng
-    public ModelMovies() {
-    }
+    private String posterUrl;
+    private boolean deleted = false;
+    private LocalDateTime createdAt;
 
-    // 2. Constructor dùng khi tạo mới Movie (chưa có movieId, isDeleted và createdAt)
-    public ModelMovies(String title, String description, int durationMins, String status) {
+    public ModelMovies() {}
+
+    // Tạo mới (chưa có id, createdAt)
+    public ModelMovies(String title, String description, int durationMins,
+                 Status status, String genre, String posterUrl) {
         this.title = title;
         this.description = description;
         this.durationMins = durationMins;
         this.status = status;
+        this.genre = genre;
+        this.posterUrl = posterUrl;
     }
 
-    // 3. Constructor đầy đủ (dùng khi đọc dữ liệu từ MySQL lên)
+    // Đầy đủ (đọc từ DB)
     public ModelMovies(int movieId, String title, String description, int durationMins,
-                       String status, String genre, String createdAt, String posterUrl) {
+                 Status status, String genre, String posterUrl,
+                 boolean deleted, LocalDateTime createdAt) {
+        this(title, description, durationMins, status, genre, posterUrl);
         this.movieId = movieId;
-        this.title = title;
-        this.description = description;
-        this.durationMins = durationMins;
-        this.status = status;
-        this.createdAt = createdAt;
-        this.posterUrl = posterUrl;
-        this.genre = genre;
-    }
-
-    // Getters & Setters
-    public int getMovieId() {
-        return movieId;
-    }
-
-    public void setMovieId(int movieId) {
-        this.movieId = movieId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getDurationMins() {
-        return durationMins;
-    }
-
-    public void setDurationMins(int durationMins) {
-        this.durationMins = durationMins;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public boolean getGenre() {
-        return isDeleted;
-    }
-
-    public void setGenre(String Genre) {
-        this.genre = genre;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
+        this.deleted = deleted;
         this.createdAt = createdAt;
     }
-    
-    public String getPosterUrl() {
-        return posterUrl;
-    }
 
-    public void setPosterUrl(String createdAt) {
-        this.posterUrl = posterUrl;
+    public int getMovieId() { return movieId; }
+    public void setMovieId(int movieId) { this.movieId = movieId; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public int getDurationMins() { return durationMins; }
+    public void setDurationMins(int durationMins) { this.durationMins = durationMins; }
+
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
+
+    public String getGenre() { return genre; }
+    public void setGenre(String genre) { this.genre = genre; }
+
+    public String getPosterUrl() { return posterUrl; }
+    public void setPosterUrl(String posterUrl) { this.posterUrl = posterUrl; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    @Override
+    public String toString() {
+        return title + " (" + durationMins + " phút)";
     }
 }

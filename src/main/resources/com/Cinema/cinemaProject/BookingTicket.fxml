@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- Mua vé: chọn suất chiếu -> chọn ghế -> xác nhận (kiểm tra OK -> ghi DB, lỗi -> rollback) -->
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+             styleClass="page-scroll" fitToWidth="true" hbarPolicy="NEVER"
+            fx:controller="com.Cinema.controller.BookingController">
+<VBox alignment="TOP_CENTER">
+    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+	<VBox styleClass="card" spacing="14" maxWidth="760">
+		<padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+        <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onBack"/>
+        <Label fx:id="lblMovieName" text="Tên phim" style="-fx-font-size:20px; -fx-font-weight:bold;"/>
+
+        <!-- Bước 1: chọn suất chiếu -->
+        <Label text="1. Chọn suất chiếu" style="-fx-font-weight:bold;"/>
+        <ComboBox fx:id="cbShowtime" promptText="Chọn ngày - giờ - phòng chiếu"
+				maxWidth="Infinity" onAction="#onShowtimeChanged"/>
+
+        <!-- Bước 2: chọn ghế (các ToggleButton được sinh bằng code trong seatGrid) -->
+        <Label text="2. Chọn ghế" style="-fx-font-weight:bold;"/>
+        <Label text="MÀN HÌNH" styleClass="screen-bar" maxWidth="Infinity" alignment="CENTER"/>
+        <GridPane fx:id="seatGrid" hgap="6" vgap="6" alignment="CENTER"/>
+        <HBox spacing="16" alignment="CENTER">
+            <Label text="■ Trống"   style="-fx-text-fill:#4caf50;"/>
+            <Label text="■ Đang chọn" style="-fx-text-fill:#2196f3;"/>
+            <Label text="■ Đã đặt"  style="-fx-text-fill:#9e9e9e;"/>
+        </HBox>
+
+        <!-- Tóm tắt -->
+        <Separator/>
+        <Label text="3. Xác nhận" styleClass="step-title"/>
+	
+    	<HBox spacing="8">
+    		<Label text="Ghế đã chọn:"/>
+    		<Label fx:id="lblSelectedSeats" text="-"/>
+    	</HBox>
+    	<HBox spacing="8">
+    		<Label text="Tổng tiền:"/>
+    		<Label fx:id="lblTotal" text="0 đ" style="-fx-font-weight:bold;"/>
+    	</HBox>
+
+        <Label fx:id="lblError" textFill="red" styleClass="error-lable" wrapText="true" minHeight="-Infinity"/>
+
+        <!-- Bước 3: xác nhận. Controller: kiểm tra -> beginTransaction -> insert Ticket -> commit | rollback -->
+        <Button fx:id="btnConfirm" text="Xác nhận đặt vé" maxWidth="Infinity" prefHeight="44"
+                style="-fx-background-color:#e50914; -fx-text-fill:white; -fx-font-weight:bold;"
+                onAction="#onConfirm"/>
+    </VBox>
+</ScrollPane>

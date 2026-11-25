@@ -1,11 +1,13 @@
 package model;
 
 public class ModelUser {
-	 	private int userId;
+		public enum Role { USER, ADMIN }
+
+		private int userId;
 	    private String fullName;
 	    private String email;
 	    private String password_hash;
-	    private String role = "USER"; // Mặc định là USER giống schema
+	    private Role role = Role.USER; // Mặc định là USER giống schema
 	    private String createdAt;
 
 	    // 1. Constructor rỗng
@@ -13,7 +15,7 @@ public class ModelUser {
 	    }
 
 	    // 2. Constructor dùng khi tạo mới User (chưa có userId và createdAt)
-	    public ModelUser(String fullName, String email, String password_hash, String role) {
+	    public ModelUser(String fullName, String email, String password_hash, Role role) {
 	        this.fullName = fullName;
 	        this.email = email;
 	        this.password_hash = password_hash;
@@ -21,7 +23,7 @@ public class ModelUser {
 	    }
 
 	    // 3. Constructor đầy đủ (dùng khi đọc dữ liệu từ MySQL lên)
-	    public ModelUser(int userId, String fullName, String email, String password_hash, String role, String createdAt) {
+	    public ModelUser(int userId, String fullName, String email, String password_hash, Role role, String createdAt) {
 	        this.userId = userId;
 	        this.fullName = fullName;
 	        this.email = email;
@@ -63,11 +65,11 @@ public class ModelUser {
 	        this.password_hash = password_hash;
 	    }
 
-	    public String getRole() {
+	    public Role getRole() {
 	        return role;
 	    }
 
-	    public void setRole(String role) {
+	    public void setRole(Role role) {
 	        this.role = role;
 	    }
 
