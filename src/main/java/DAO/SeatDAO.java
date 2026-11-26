@@ -20,8 +20,12 @@ public class SeatDAO {
 
         List<ModelSeats> list = new ArrayList<>();
 
-        try (Connection c = DB_CONNECTION.getInstance().createConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        Connection c = DB_CONNECTION.getInstance().createConnection();
+        if (c == null) {
+            throw new SQLException("Không thể kết nối cơ sở dữ liệu.");
+        }
+
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setInt(1, roomId);
 

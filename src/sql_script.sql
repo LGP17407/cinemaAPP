@@ -243,30 +243,43 @@ VALUES
  115, 'https://example.com/fantasticfour.jpg', 'UPCOMING');
 
 -- ---------------------------------------------------------------------
--- Showtimes: end_time = start_time + duration_mins của phim
+-- Showtimes: tự động tạo lịch chiếu cho 3 ngày tới tính từ CURDATE()
+--            end_time = start_time + duration_mins của phim
 -- ---------------------------------------------------------------------
 INSERT INTO Showtimes (movie_id, room_id, start_time, end_time, base_price, status)
-VALUES
--- 23/11 - Room 01
-(1, 1, '2026-11-23 09:00:00', '2026-11-23 12:01:00',  90000, 'ACTIVE'),
-(2, 1, '2026-11-23 13:00:00', '2026-11-23 15:28:00',  95000, 'ACTIVE'),
-(3, 1, '2026-11-23 16:30:00', '2026-11-23 19:19:00', 100000, 'ACTIVE'),
--- 23/11 - Room 02
-(4, 2, '2026-11-23 09:00:00', '2026-11-23 11:28:00',  85000, 'ACTIVE'),
-(5, 2, '2026-11-23 13:00:00', '2026-11-23 15:32:00',  90000, 'ACTIVE'),
-(6, 2, '2026-11-23 16:30:00', '2026-11-23 19:16:00', 110000, 'ACTIVE'),
--- 23/11 - Room 03
-(7, 3, '2026-11-23 09:00:00', '2026-11-23 10:36:00',  80000, 'ACTIVE'),
-(1, 3, '2026-11-23 13:00:00', '2026-11-23 16:01:00',  90000, 'ACTIVE'),
-(2, 3, '2026-11-23 17:00:00', '2026-11-23 19:28:00',  95000, 'ACTIVE'),
--- 23/11 - Room 04
-(3, 4, '2026-11-23 09:00:00', '2026-11-23 11:49:00', 100000, 'ACTIVE'),
-(4, 4, '2026-11-23 13:00:00', '2026-11-23 15:28:00',  85000, 'ACTIVE'),
-(5, 4, '2026-11-23 17:00:00', '2026-11-23 19:32:00',  90000, 'ACTIVE'),
--- 24/11 và 25/11
-(6, 1, '2026-11-24 09:00:00', '2026-11-24 11:46:00', 110000, 'ACTIVE'),
-(7, 2, '2026-11-24 13:00:00', '2026-11-24 14:36:00',  80000, 'ACTIVE'),
-(1, 3, '2026-11-25 18:00:00', '2026-11-25 21:01:00', 100000, 'ACTIVE');
+SELECT
+    s.movie_id,
+    s.room_id,
+    TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL s.day_offset DAY), s.start_clock) AS start_time,
+    DATE_ADD(
+        TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL s.day_offset DAY), s.start_clock),
+        INTERVAL m.duration_mins MINUTE
+    ) AS end_time,
+    s.base_price,
+    'ACTIVE'
+FROM (
+    -- Ngày +1: Room 01
+    SELECT 1 AS movie_id, 1 AS room_id, 1 AS day_offset, '09:00:00' AS start_clock,  90000 AS base_price
+    UNION ALL SELECT 2, 1, 1, '13:00:00',  95000
+    UNION ALL SELECT 3, 1, 1, '16:30:00', 100000
+    -- Ngày +1: Room 02
+    UNION ALL SELECT 4, 2, 1, '09:00:00',  85000
+    UNION ALL SELECT 5, 2, 1, '13:00:00',  90000
+    UNION ALL SELECT 6, 2, 1, '16:30:00', 110000
+    -- Ngày +1: Room 03
+    UNION ALL SELECT 7, 3, 1, '09:00:00',  80000
+    UNION ALL SELECT 1, 3, 1, '13:00:00',  90000
+    UNION ALL SELECT 2, 3, 1, '17:00:00',  95000
+    -- Ngày +1: Room 04
+    UNION ALL SELECT 3, 4, 1, '09:00:00', 100000
+    UNION ALL SELECT 4, 4, 1, '13:00:00',  85000
+    UNION ALL SELECT 5, 4, 1, '17:00:00',  90000
+    -- Ngày +2 và +3
+    UNION ALL SELECT 6, 1, 2, '09:00:00', 110000
+    UNION ALL SELECT 7, 2, 2, '13:00:00',  80000
+    UNION ALL SELECT 1, 3, 3, '18:00:00', 100000
+) AS s
+JOIN Movies m ON m.movie_id = s.movie_id;
 
 -- ---------------------------------------------------------------------
 -- Kiểm tra nhanh sau khi chạy

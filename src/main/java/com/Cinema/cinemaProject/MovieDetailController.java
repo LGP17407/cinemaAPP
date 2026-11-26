@@ -29,7 +29,10 @@ public class MovieDetailController {
         this.movie = movie;
         imgPoster.setImage(UiUtil.loadImage(movie.getPosterUrl(), 400, 600));
         lblTitle.setText(movie.getTitle());
-        lblGenre.setText("Thể loại: " + orDash(movie.getGenre()));
+        boolean hasGenre = movie.getGenre() != null && !movie.getGenre().isBlank();
+        lblGenre.setVisible(hasGenre);
+        lblGenre.setManaged(hasGenre);
+        lblGenre.setText(hasGenre ? "Thể loại: " + movie.getGenre() : "");
         lblDuration.setText("Độ dài: " + movie.getDurationMins() + " phút");
         // Model chỉ có createdAt; nếu thêm releaseDate thì đổi ở đây.
         lblReleaseDate.setText("Ngày thêm: "
@@ -43,14 +46,10 @@ public class MovieDetailController {
     private static String statusText(Status status) {
         if (status == null) return "Không rõ";
         return switch (status) {
-            case SHOWING     -> "Đang chiếu";
-            case COMING_SOON -> "Sắp chiếu";
-            case ENDED       -> "Đã kết thúc";
+            case SHOWING  -> "Đang chiếu";
+            case UPCOMING -> "Sắp chiếu";
+            case STOPPED  -> "Ngừng chiếu";
         };
-    }
-
-    private static String orDash(String s) {
-        return (s == null || s.isBlank()) ? "—" : s;
     }
 
     @FXML
@@ -61,7 +60,7 @@ public class MovieDetailController {
             alert.showAndWait();
             return;
         }
-        ViewNavigator.replaceScene(lblTitle.getScene().getWindow(), "BookingDialog.fxml",
+        ViewNavigator.replaceScene(lblTitle.getScene().getWindow(), "BookingTicket.fxml",
                 (BookingController c) -> c.setData(movie, null, List.<ModelSeats>of()));
     }
 

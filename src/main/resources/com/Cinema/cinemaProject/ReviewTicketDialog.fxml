@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- POPUP 3: Xem lại thông tin vé trước khi xác nhận đặt. -->
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            styleClass="app-root"
+            prefWidth="520"
+            prefHeight="430"
+            fx:controller="com.Cinema.cinemaProject.ReviewTicketController">
+
+    <stylesheets>
+        <URL value="@../style.css"/>
+    </stylesheets>
+
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <center>
+        <VBox styleClass="card" spacing="14">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Xác nhận thông tin vé" styleClass="page-title"/>
+            <Separator/>
+
+            <GridPane hgap="16" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="110" prefWidth="120"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <Label text="Phim:" styleClass="field-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label fx:id="lblMovie" styleClass="value-label" wrapText="true"
+                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                <Label text="Suất chiếu:" styleClass="field-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Label fx:id="lblShowtime" styleClass="value-label"
+                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                <Label text="Phòng:" styleClass="field-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Label fx:id="lblRoom" styleClass="value-label"
+                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                <Label text="Ghế đã chọn:" styleClass="field-label" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                <Label fx:id="lblSeats" styleClass="value-label" wrapText="true"
+                       GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                <Label text="Tổng tiền:" styleClass="field-label" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                <Label fx:id="lblTotal" styleClass="total-label"
+                       GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+            </GridPane>
+
+            <Label fx:id="lblError" styleClass="error-label" wrapText="true"/>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="16"/>
+            </padding>
+            <Button text="Hủy" styleClass="btn-secondary" onAction="#onCancel"/>
+            <Button text="Quay lại" styleClass="btn-secondary" onAction="#onBack"/>
+            <Button fx:id="btnConfirm" text="Xác nhận đặt vé" styleClass="btn-accent" onAction="#onConfirm"/>
+        </HBox>
+    </bottom>
+</BorderPane>

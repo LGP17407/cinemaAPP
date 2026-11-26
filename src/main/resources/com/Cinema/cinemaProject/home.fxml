@@ -35,26 +35,30 @@
             </padding>
 
             <!-- Phim đang chiếu -->
-            <VBox minHeight="300.0" spacing="8.0"
+            <VBox minHeight="220.0" spacing="12.0"
                   style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
                <padding>
                   <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                </padding>
-               <Label text="Phim đang chiếu" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-               <VBox fx:id="showingBox" spacing="6.0">
-                  <Label text="Chưa có dữ liệu." style="-fx-text-fill: gray;" />
+               <HBox alignment="CENTER_LEFT" spacing="12.0">
+                  <Label text="Phim đang chiếu" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button onAction="#handleRefresh" text="Làm mới" />
+               </HBox>
+               <VBox fx:id="showingBox" spacing="8.0">
+                  <Label text="Đang tải dữ liệu..." style="-fx-text-fill: gray;" />
                </VBox>
             </VBox>
 
             <!-- Phim công chiếu -->
-            <VBox minHeight="300.0" spacing="8.0"
+            <VBox minHeight="220.0" spacing="12.0"
                   style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
                <padding>
                   <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                </padding>
                <Label text="Phim công chiếu" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-               <VBox fx:id="upcomingBox" spacing="6.0">
-                  <Label text="Chưa có dữ liệu." style="-fx-text-fill: gray;" />
+               <VBox fx:id="upcomingBox" spacing="8.0">
+                  <Label text="Đang tải dữ liệu..." style="-fx-text-fill: gray;" />
                </VBox>
             </VBox>
          </VBox>

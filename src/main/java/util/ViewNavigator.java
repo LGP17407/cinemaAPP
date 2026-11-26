@@ -9,18 +9,23 @@ import javafx.stage.Window;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URL;
 import java.util.function.Consumer;
 
 /** Mở popup, chuyển bước trong popup, chuyển màn hình chính. */
 public final class ViewNavigator {
-    /** Thư mục chứa các file .fxml trong resources. Đổi nếu bạn đặt chỗ khác. */
-    private static final String BASE = "/com/cinema/fxml/";
+    /** Thư mục chứa các file .fxml trong resources. */
+    private static final String BASE = "/com/Cinema/cinemaProject/";
 
     private ViewNavigator() {}
 
     private static <T> T load(String fxml, Consumer<T> init, Scene[] sceneOut) {
         try {
-            FXMLLoader loader = new FXMLLoader(ViewNavigator.class.getResource(BASE + fxml));
+            URL resource = ViewNavigator.class.getResource(BASE + fxml);
+            if (resource == null) {
+                throw new IllegalStateException("Không tìm thấy file FXML: " + BASE + fxml);
+            }
+            FXMLLoader loader = new FXMLLoader(resource);
             Parent root = loader.load();
             T controller = loader.getController();
             if (init != null) init.accept(controller);   // truyền dữ liệu TRƯỚC khi hiển thị
@@ -51,6 +56,7 @@ public final class ViewNavigator {
         Stage stage = (Stage) current;
         stage.setScene(holder[0]);
         stage.sizeToScene();
+        stage.centerOnScreen();
     }
 
     /** Đổi màn hình chính (Home <-> Login/Account/EditProfile). */

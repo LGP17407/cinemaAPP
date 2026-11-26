@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -7,10 +8,16 @@
 <!-- POPUP 2: chọn suất chiếu + chọn ghế. Khớp BookingController (onNext / onCancel / onShowtimeChanged) -->
 <ScrollPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            styleClass="page-scroll"
+            styleClass="page-scroll app-root"
+            prefWidth="800"
+            prefHeight="640"
             fitToWidth="true"
             hbarPolicy="NEVER"
             fx:controller="com.Cinema.cinemaProject.BookingController">
+
+    <stylesheets>
+        <URL value="@../style.css"/>
+    </stylesheets>
 
     <VBox alignment="TOP_CENTER">
         <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
@@ -26,15 +33,24 @@
                       promptText="Chọn ngày - giờ - phòng chiếu"
                       maxWidth="Infinity"
                       onAction="#onShowtimeChanged"/>
+            <Label fx:id="lblShowtimeInfo"
+                   style="-fx-text-fill:#555555; -fx-font-size:12px;"
+                   wrapText="true"/>
 
             <Label text="2. Chọn ghế" style="-fx-font-weight:bold;"/>
             <Label text="MÀN HÌNH" styleClass="screen-bar" maxWidth="Infinity" alignment="CENTER"/>
-            <GridPane fx:id="seatGrid" hgap="6" vgap="6" alignment="CENTER"/>
+            <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER"
+                        styleClass="page-scroll">
+                <GridPane fx:id="seatGrid" hgap="6" vgap="6" alignment="CENTER">
+                    <padding><Insets top="6" right="6" bottom="6" left="6"/></padding>
+                </GridPane>
+            </ScrollPane>
 
             <HBox spacing="16" alignment="CENTER">
-                <Label text="■ Trống"     style="-fx-text-fill:#4caf50;"/>
-                <Label text="■ Đang chọn" style="-fx-text-fill:#2196f3;"/>
-                <Label text="■ Đã đặt"    style="-fx-text-fill:#9e9e9e;"/>
+                <Label text="■ Thường (trống)" style="-fx-text-fill:#4caf50; -fx-font-weight:bold;"/>
+                <Label text="■ VIP (trống)"    style="-fx-text-fill:#00897b; -fx-font-weight:bold;"/>
+                <Label text="■ Đang chọn"      style="-fx-text-fill:#2196f3; -fx-font-weight:bold;"/>
+                <Label text="■ Đã đặt / Khóa"  style="-fx-text-fill:#9e9e9e; -fx-font-weight:bold;"/>
             </HBox>
 
             <Separator/>

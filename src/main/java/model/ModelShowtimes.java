@@ -16,6 +16,7 @@ public class ModelShowtimes {
     private boolean isDeleted = false; // Mặc định 0 giống schema
     private String createdAt;
     private String roomName;   // lấy từ JOIN rooms, chỉ để hiển thị
+    private int availableSeats = -1; // số ghế trống của suất chiếu (-1 nếu chưa tính)
 
     // 1. Constructor rỗng
     public ModelShowtimes() {
@@ -112,19 +113,39 @@ public class ModelShowtimes {
     public String getRoomName() { return roomName; }
     public void setRoomName(String roomName) { this.roomName = roomName; }
 
+    public int getAvailableSeats() { return availableSeats; }
+    public void setAvailableSeats(int availableSeats) { this.availableSeats = availableSeats; }
+
     /** startTime lưu dạng String ("2026-11-25T19:30" hoặc "2026-11-25 19:30:00.0") -> LocalDateTime. */
     public LocalDateTime startDateTime() {
-        return LocalDateTime.parse(startTime.trim().replace(' ', 'T'));
+        return parseDateTime(startTime);
+    }
+
+    /** endTime -> LocalDateTime (có thể null nếu dữ liệu chưa có). */
+    public LocalDateTime endDateTime() {
+        return parseDateTime(endTime);
+    }
+
+    private static LocalDateTime parseDateTime(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        return LocalDateTime.parse(raw.trim().replace(' ', 'T'));
     }
 
     /** Giá vé 1 ghế dưới dạng BigDecimal (tính tiền không bị sai số). */
     public BigDecimal price() { return BigDecimal.valueOf(basePrice); }
 
-    /** ComboBox hiển thị: "25/11/2026 19:30 - Phòng 1 - 90.000 đ". */
+    /** ComboBox hiển thị: "25/11/2026 19:30 - Room 01 - 90.000 đ (50 ghế trống)". */
     @Override
     public String toString() {
-        String t = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(startDateTime());
+        LocalDateTime start = startDateTime();
+        String t = start != null
+                ? DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(start)
+                : (startTime != null ? startTime : "—");
         String p = NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN")).format(basePrice);
-        return t + " - " + (roomName != null ? roomName : "Phòng " + roomId) + " - " + p + " đ";
+        String room = (roomName != null && !roomName.isBlank()) ? roomName : "Phòng " + roomId;
+        String seatsInfo = availableSeats >= 0 ? " (" + availableSeats + " ghế trống)" : "";
+        return t + " - " + room + " - " + p + " đ" + seatsInfo;
     }
 }

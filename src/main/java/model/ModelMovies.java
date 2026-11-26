@@ -3,7 +3,7 @@ package model;
 import java.time.LocalDateTime;
 
 public class ModelMovies {
-    public enum Status { SHOWING, COMING_SOON, ENDED }   // chỉnh theo schema của bạn
+    public enum Status { UPCOMING, SHOWING, STOPPED }
 
     private int movieId;
     private String title;
@@ -61,6 +61,11 @@ public class ModelMovies {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public boolean isDeleted() { return deleted; }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
+
+    public boolean isNowShowing() { return status == Status.SHOWING; }
 
     @Override
     public String toString() {

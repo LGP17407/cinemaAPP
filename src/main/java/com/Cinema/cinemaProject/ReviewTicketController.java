@@ -46,11 +46,16 @@ public class ReviewTicketController {
 
         lblMovie.setText(movie.getTitle());
 
-        // ModelShowtimes sử dụng String cho startTime
-        lblShowtime.setText(showtime.getStartTime());
+        try {
+            lblShowtime.setText(UiUtil.DATE_TIME.format(showtime.startDateTime()));
+        } catch (Exception e) {
+            lblShowtime.setText(showtime.getStartTime());
+        }
 
-        // ModelShowtimes không có roomName, sử dụng roomId
-        lblRoom.setText("Phòng " + showtime.getRoomId());
+        String roomName = showtime.getRoomName();
+        lblRoom.setText((roomName != null && !roomName.isBlank())
+                ? roomName
+                : "Phòng " + showtime.getRoomId());
 
         // Ghép hàng ghế và số ghế
         lblSeats.setText(
@@ -130,7 +135,7 @@ public class ReviewTicketController {
 
         ViewNavigator.replaceScene(
             lblMovie.getScene().getWindow(),
-            "BookingDialog.fxml",
+            "BookingTicket.fxml",
             (BookingController c) -> c.setData(movie, showtime, seats)
         );
     }

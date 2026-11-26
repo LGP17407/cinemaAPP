@@ -13,17 +13,21 @@ public class MovieDAO {
 
     /**
      * Phim theo trạng thái (enum Status trong ModelMovies),
-     * bỏ qua phim đã xoá mềm.
+     * khớp schema bảng movies (movie_id, title, description, duration_mins, poster_url, status, created_at).
      */
     public List<ModelMovies> findByStatus(Status status) throws SQLException {
 
-        String sql = "SELECT movie_id, title, description, duration_mins, status, genre, poster_url, is_deleted, created_at "
-                   + "FROM movies WHERE status=? AND is_deleted=0 ORDER BY created_at DESC";
+        String sql = "SELECT movie_id, title, description, duration_mins, status, poster_url, created_at "
+                   + "FROM movies WHERE status = ? ORDER BY created_at DESC, movie_id DESC";
 
         List<ModelMovies> list = new ArrayList<>();
 
-        try (Connection c = DB_CONNECTION.getInstance().createConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        Connection c = DB_CONNECTION.getInstance().createConnection();
+        if (c == null) {
+            throw new SQLException("Không thể kết nối cơ sở dữ liệu.");
+        }
+
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, status.name());
 
@@ -32,16 +36,20 @@ public class MovieDAO {
                 while (rs.next()) {
 
                     Timestamp created = rs.getTimestamp("created_at");
+                    String rawStatus = rs.getString("status");
+                    Status movieStatus = rawStatus != null
+                            ? Status.valueOf(rawStatus.trim().toUpperCase())
+                            : status;
 
                     list.add(new ModelMovies(
                         rs.getInt("movie_id"),
                         rs.getString("title"),
                         rs.getString("description"),
                         rs.getInt("duration_mins"),
-                        Status.valueOf(rs.getString("status")),
-                        rs.getString("genre"),
+                        movieStatus,
+                        null,
                         rs.getString("poster_url"),
-                        rs.getBoolean("is_deleted"),
+                        false,
                         created != null ? created.toLocalDateTime() : null
                     ));
                 }

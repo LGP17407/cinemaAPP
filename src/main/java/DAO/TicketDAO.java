@@ -20,8 +20,12 @@ public class TicketDAO {
 
         String sql = "SELECT seat_id FROM tickets WHERE showtime_id=?";
 
-        try (Connection c = DB_CONNECTION.getInstance().createConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        Connection c = DB_CONNECTION.getInstance().createConnection();
+        if (c == null) {
+            throw new SQLException("Không thể kết nối cơ sở dữ liệu.");
+        }
+
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setInt(1, showtimeId);
 
@@ -51,44 +55,47 @@ public class TicketDAO {
                    + "JOIN seats s ON s.room_id = st.room_id "
                    + "WHERE st.showtime_id=? "
                    + "AND st.is_deleted=0 "
+                   + "AND st.status='ACTIVE' "
                    + "AND st.start_time > NOW() "
                    + "AND s.seat_id=? "
                    + "AND s.status='AVAILABLE'";
 
-        try (Connection c = DB_CONNECTION.getInstance().createConnection()) {
+        Connection c = DB_CONNECTION.getInstance().createConnection();
+        if (c == null) {
+            throw new SQLException("Không thể kết nối cơ sở dữ liệu.");
+        }
 
-            c.setAutoCommit(false);
+        c.setAutoCommit(false);
 
-            try (PreparedStatement ps = c.prepareStatement(sql)) {
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
 
-                for (int seatId : seatIds) {
+            for (int seatId : seatIds) {
 
-                    ps.setInt(1, userId);
-                    ps.setInt(2, showtimeId);
-                    ps.setInt(3, seatId);
+                ps.setInt(1, userId);
+                ps.setInt(2, showtimeId);
+                ps.setInt(3, seatId);
 
-                    if (ps.executeUpdate() == 0) {
-                        throw new SQLException(
-                            "Suất chiếu hoặc ghế không còn hợp lệ.",
-                            "45000"
-                        );
-                    }
+                if (ps.executeUpdate() == 0) {
+                    throw new SQLException(
+                        "Suất chiếu hoặc ghế không còn hợp lệ.",
+                        "45000"
+                    );
                 }
-
-                c.commit();
-
-            } catch (SQLException e) {
-
-                try {
-                    c.rollback();
-                } catch (SQLException rollbackException) {
-                    e.addSuppressed(rollbackException);
-                }
-
-                throw e;
-            } finally {
-                c.setAutoCommit(true);
             }
+
+            c.commit();
+
+        } catch (SQLException e) {
+
+            try {
+                c.rollback();
+            } catch (SQLException rollbackException) {
+                e.addSuppressed(rollbackException);
+            }
+
+            throw e;
+        } finally {
+            c.setAutoCommit(true);
         }
     }
 }

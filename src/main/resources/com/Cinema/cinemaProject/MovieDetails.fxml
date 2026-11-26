@@ -12,7 +12,7 @@
             fx:controller="com.Cinema.cinemaProject.MovieDetailController">
 
     <stylesheets>
-        <URL value="@../styles.css"/>
+        <URL value="@../style.css"/>
     </stylesheets>
 
     <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
