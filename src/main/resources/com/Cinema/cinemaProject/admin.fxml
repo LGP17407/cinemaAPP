@@ -214,7 +214,7 @@
                         <TableColumn fx:id="rsStatusCol" prefWidth="75.0" text="Trạng thái" />
                         <TableColumn fx:id="rsTotalSeatsCol" prefWidth="60.0" text="Tổng" />
                         <TableColumn fx:id="rsBookedSeatsCol" prefWidth="58.0" text="Đã đặt" />
-                        <TableColumn fx:id="rsEmptySeatsCol" prefWidth="72.0" text="Ghế trống" />
+                        <TableColumn fx:id="rsEmptySeatsCol" prefWidth="72.0" text="Chưa đặt" />
                      </columns>
                   </TableView>
                </VBox>
@@ -231,15 +231,11 @@
                          visible="false" managed="false" />
 
                   <HBox alignment="CENTER_LEFT" spacing="14.0">
-                     <Label text="■ Trống (Thường)" style="-fx-text-fill: #2e7d32; -fx-font-weight: bold;" />
-                     <Label text="■ Trống (VIP)" style="-fx-text-fill: #1565c0; -fx-font-weight: bold;" />
-                     <Label text="■ Đã đặt ở suất này" style="-fx-text-fill: #6a1b9a; -fx-font-weight: bold;" />
-                     <Label text="■ MAINTENANCE" style="-fx-text-fill: #ef6c00; -fx-font-weight: bold;" />
-                     <Label text="■ UNAVAILABLE" style="-fx-text-fill: #c62828; -fx-font-weight: bold;" />
+                     <Label text="■ AVAILABLE - Chưa đặt (Thường)" style="-fx-text-fill: #2e7d32; -fx-font-weight: bold;" />
+                     <Label text="■ AVAILABLE - Chưa đặt (VIP)" style="-fx-text-fill: #1565c0; -fx-font-weight: bold;" />
+                     <Label text="■ UNAVAILABLE (Đã đặt)" style="-fx-text-fill: #c62828; -fx-font-weight: bold;" />
+                     <Label text="■ MAINTENANCE (Bảo trì)" style="-fx-text-fill: #ef6c00; -fx-font-weight: bold;" />
                   </HBox>
-
-                  <Label text="MÀN HÌNH CHIẾU" alignment="CENTER" maxWidth="Infinity"
-                         style="-fx-background-color: #e0e0e0; -fx-padding: 6; -fx-font-weight: bold; -fx-background-radius: 4;" />
 
                   <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
                      <GridPane fx:id="seatsGrid" hgap="8.0" vgap="8.0" alignment="CENTER">
@@ -249,12 +245,15 @@
                      </GridPane>
                   </ScrollPane>
 
+                  <Label text="MÀN HÌNH CHIẾU" alignment="CENTER" maxWidth="Infinity"
+                         style="-fx-background-color: #e0e0e0; -fx-padding: 6; -fx-font-weight: bold; -fx-background-radius: 4;" />
+
                   <Separator />
 
                   <HBox alignment="CENTER_LEFT" spacing="12.0">
                      <Label fx:id="selectedSeatLabel" text="Chưa chọn ghế nào."
                             style="-fx-font-weight: bold;" HBox.hgrow="ALWAYS" />
-                     <ComboBox fx:id="seatStatusCombo" prefWidth="160.0" />
+                     <ComboBox fx:id="seatStatusCombo" prefWidth="205.0" />
                      <Button fx:id="updateSeatStatusBtn" onAction="#handleUpdateSeatStatus"
                              text="Cập nhật trạng thái"
                              style="-fx-background-color: #1565c0; -fx-text-fill: white; -fx-font-weight: bold;" />

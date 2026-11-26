@@ -612,15 +612,15 @@ public class AdminServices {
 	/**
 	 * Thống kê ghế theo từng suất chiếu:
 	 * [0] = tổng số ghế thuộc phòng của suất chiếu,
-	 * [1] = số ghế đã có vé ứng với suất chiếu đó,
-	 * [2] = số ghế trống ở suất này (thuộc phòng của suất đó và chưa có vé nào ứng với (suất này, ghế này)).
+	 * [1] = số ghế đã đặt (đã có vé ứng với suất chiếu đó hoặc ghế đang ở trạng thái UNAVAILABLE),
+	 * [2] = số ghế chưa đặt (chưa có vé ứng với suất này và ghế đang ở trạng thái AVAILABLE).
 	 */
 	public static Map<Integer, int[]> getSeatStatsByShowtime() throws SQLException {
 		Connection connection = requireConnection();
 		String sql = "SELECT st.showtime_id, "
 				+ "COUNT(s.seat_id) AS total_room_seats, "
-				+ "COUNT(t.ticket_id) AS booked_seats, "
-				+ "SUM(CASE WHEN t.ticket_id IS NULL THEN 1 ELSE 0 END) AS empty_seats "
+				+ "SUM(CASE WHEN t.ticket_id IS NOT NULL OR s.status = 'UNAVAILABLE' THEN 1 ELSE 0 END) AS booked_seats, "
+				+ "SUM(CASE WHEN t.ticket_id IS NULL AND s.status = 'AVAILABLE' THEN 1 ELSE 0 END) AS empty_seats "
 				+ "FROM showtimes st "
 				+ "JOIN seats s ON s.room_id = st.room_id "
 				+ "LEFT JOIN tickets t ON t.showtime_id = st.showtime_id AND t.seat_id = s.seat_id "

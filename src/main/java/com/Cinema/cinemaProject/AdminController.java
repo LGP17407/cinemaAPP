@@ -34,6 +34,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import model.Record;
 import service.AdminServices;
 
@@ -565,6 +566,17 @@ public class AdminController {
                 seatStatsByShowtime.getOrDefault(d.getValue().showtimeId(), new int[3])[2]));
 
         seatStatusCombo.setItems(FXCollections.observableArrayList("AVAILABLE", "MAINTENANCE", "UNAVAILABLE"));
+        seatStatusCombo.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(String status) {
+                return formatSeatStatus(status);
+            }
+
+            @Override
+            public String fromString(String label) {
+                return label;
+            }
+        });
         seatStatusCombo.setValue("MAINTENANCE");
         updateSeatStatusBtn.setDisable(true);
 
@@ -627,25 +639,21 @@ public class AdminController {
             bookedSeatIdsInSelectedShowtime = AdminServices.getBookedSeatIdsByShowtime(showtime.showtimeId());
 
             int totalSeats = seats.size();
-            int emptySeats = 0;
-            int bookedSeats = 0;
-            int maintSeats = 0;
+            int availSeats = 0;
             int unavailSeats = 0;
+            int maintSeats = 0;
 
             Map<String, Integer> rowIndexMap = new LinkedHashMap<>();
             int nextRow = 0;
 
             for (Record.seats seat : seats) {
                 boolean isBooked = bookedSeatIdsInSelectedShowtime.contains(seat.seatId());
-                if (isBooked) {
-                    bookedSeats++;
-                } else {
-                    emptySeats++;
-                }
-                if ("MAINTENANCE".equals(seat.status())) {
-                    maintSeats++;
-                } else if ("UNAVAILABLE".equals(seat.status())) {
+                if (isBooked || "UNAVAILABLE".equals(seat.status())) {
                     unavailSeats++;
+                } else if ("MAINTENANCE".equals(seat.status())) {
+                    maintSeats++;
+                } else {
+                    availSeats++;
                 }
 
                 Integer rowIdx = rowIndexMap.get(seat.seatRow());
@@ -662,18 +670,20 @@ public class AdminController {
                 seatBtn.setMinWidth(52.0);
                 seatBtn.setMinHeight(36.0);
                 seatBtn.setStyle(getSeatButtonStyle(seat, isBooked));
-                seatBtn.setTooltip(new Tooltip(String.format("%s (%s) — %s — Trạng thái ghế: %s",
+                String tooltipStatus = isBooked
+                        ? "UNAVAILABLE (Đã đặt vé ở suất này)"
+                        : formatSeatStatus(seat.status());
+                seatBtn.setTooltip(new Tooltip(String.format("%s (%s) — %s",
                         code,
                         seat.seatType(),
-                        isBooked ? "Đã đặt vé ở suất này" : "Ghế trống ở suất này",
-                        seat.status())));
+                        tooltipStatus)));
                 seatBtn.setOnAction(e -> selectSeat(seat, isBooked));
                 seatsGrid.add(seatBtn, seat.seatNumber(), rowIdx);
             }
 
             roomSeatsSummaryLabel.setText(String.format(
-                    "Ghế trống ở suất này (chưa có vé): %d/%d  |  Đã đặt: %d  |  Bảo trì: %d  |  Hỏng: %d",
-                    emptySeats, totalSeats, bookedSeats, maintSeats, unavailSeats));
+                    "AVAILABLE (Chưa đặt): %d/%d  |  UNAVAILABLE (Đã đặt): %d  |  MAINTENANCE (Bảo trì): %d",
+                    availSeats, totalSeats, unavailSeats, maintSeats));
             roomSeatsSummaryLabel.setVisible(true);
             roomSeatsSummaryLabel.setManaged(true);
         } catch (SQLException e) {
@@ -684,32 +694,44 @@ public class AdminController {
     private void selectSeat(Record.seats seat, boolean isBooked) {
         selectedSeat = seat;
         String code = seat.seatRow() + seat.seatNumber();
-        selectedSeatLabel.setText(String.format("Ghế %s (%s) — %s — Trạng thái ghế: %s",
+        String statusText = isBooked
+                ? "UNAVAILABLE (Đã đặt vé ở suất này) | Mặc định phòng: " + formatSeatStatus(seat.status())
+                : formatSeatStatus(seat.status());
+        selectedSeatLabel.setText(String.format("Ghế %s (%s) — %s",
                 code,
                 seat.seatType(),
-                isBooked ? "ĐÃ ĐẶT VÉ ở suất này" : "Trống ở suất này",
-                seat.status()));
+                statusText));
         seatStatusCombo.setValue(seat.status());
         updateSeatStatusBtn.setDisable(false);
         hideFeedback(seatFeedbackLabel);
     }
 
-    private String getSeatButtonStyle(Record.seats seat, boolean isBooked) {
-        if (isBooked) {
-            return "-fx-background-color: #ede7f6; -fx-border-color: #6a1b9a; "
-                    + "-fx-text-fill: #4a148c; -fx-font-weight: bold; -fx-background-radius: 4; -fx-border-radius: 4;";
+    private static String formatSeatStatus(String status) {
+        if (status == null) {
+            return "";
         }
-        return switch (seat.status()) {
-            case "MAINTENANCE" -> "-fx-background-color: #ffe0b2; -fx-border-color: #ef6c00; "
-                    + "-fx-text-fill: #e65100; -fx-font-weight: bold; -fx-background-radius: 4; -fx-border-radius: 4;";
-            case "UNAVAILABLE" -> "-fx-background-color: #ffcdd2; -fx-border-color: #c62828; "
-                    + "-fx-text-fill: #b71c1c; -fx-font-weight: bold; -fx-background-radius: 4; -fx-border-radius: 4;";
-            default -> "VIP".equals(seat.seatType())
-                    ? "-fx-background-color: #e3f2fd; -fx-border-color: #1565c0; "
-                      + "-fx-text-fill: #0d47a1; -fx-font-weight: bold; -fx-background-radius: 4; -fx-border-radius: 4;"
-                    : "-fx-background-color: #e8f5e9; -fx-border-color: #2e7d32; "
-                      + "-fx-text-fill: #1b5e20; -fx-font-weight: bold; -fx-background-radius: 4; -fx-border-radius: 4;";
+        return switch (status) {
+            case "AVAILABLE" -> "AVAILABLE (Chưa đặt)";
+            case "UNAVAILABLE" -> "UNAVAILABLE (Đã đặt)";
+            case "MAINTENANCE" -> "MAINTENANCE (Bảo trì)";
+            default -> status;
         };
+    }
+
+    private String getSeatButtonStyle(Record.seats seat, boolean isBooked) {
+        if (isBooked || "UNAVAILABLE".equals(seat.status())) {
+            return "-fx-background-color: #ffcdd2; -fx-border-color: #c62828; "
+                    + "-fx-text-fill: #b71c1c; -fx-font-weight: bold; -fx-background-radius: 4; -fx-border-radius: 4;";
+        }
+        if ("MAINTENANCE".equals(seat.status())) {
+            return "-fx-background-color: #ffe0b2; -fx-border-color: #ef6c00; "
+                    + "-fx-text-fill: #e65100; -fx-font-weight: bold; -fx-background-radius: 4; -fx-border-radius: 4;";
+        }
+        return "VIP".equals(seat.seatType())
+                ? "-fx-background-color: #e3f2fd; -fx-border-color: #1565c0; "
+                  + "-fx-text-fill: #0d47a1; -fx-font-weight: bold; -fx-background-radius: 4; -fx-border-radius: 4;"
+                : "-fx-background-color: #e8f5e9; -fx-border-color: #2e7d32; "
+                  + "-fx-text-fill: #1b5e20; -fx-font-weight: bold; -fx-background-radius: 4; -fx-border-radius: 4;";
     }
 
     @FXML
@@ -735,7 +757,7 @@ public class AdminController {
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
                     "Ghế " + code + " đã có vé được đặt ở suất chiếu #"
                             + selectedShowtimeForSeats.showtimeId() + "!\n"
-                            + "Đổi trạng thái ghế thành " + newStatus + " sẽ áp dụng cho " + roomName
+                            + "Đổi trạng thái ghế thành " + formatSeatStatus(newStatus) + " sẽ áp dụng cho " + roomName
                             + ". Bạn có chắc chắn muốn tiếp tục?",
                     ButtonType.OK, ButtonType.CANCEL);
             confirm.setHeaderText(null);
@@ -749,7 +771,7 @@ public class AdminController {
             AdminServices.updateSeatStatus(selectedSeat.seatId(), newStatus);
             loadShowtimes();
             showFeedback(seatFeedbackLabel,
-                    "Đã cập nhật ghế " + code + " thành " + newStatus + ".", false);
+                    "Đã cập nhật ghế " + code + " thành " + formatSeatStatus(newStatus) + ".", false);
         } catch (Exception e) {
             showFeedback(seatFeedbackLabel, e.getMessage(), true);
         }

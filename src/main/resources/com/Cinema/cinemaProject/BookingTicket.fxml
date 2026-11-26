@@ -38,13 +38,13 @@
                    wrapText="true"/>
 
             <Label text="2. Chọn ghế" style="-fx-font-weight:bold;"/>
-            <Label text="MÀN HÌNH" styleClass="screen-bar" maxWidth="Infinity" alignment="CENTER"/>
             <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER"
                         styleClass="page-scroll">
                 <GridPane fx:id="seatGrid" hgap="6" vgap="6" alignment="CENTER">
                     <padding><Insets top="6" right="6" bottom="6" left="6"/></padding>
                 </GridPane>
             </ScrollPane>
+            <Label text="MÀN HÌNH" styleClass="screen-bar" maxWidth="Infinity" alignment="CENTER"/>
 
             <HBox spacing="16" alignment="CENTER">
                 <Label text="■ Thường (trống)" style="-fx-text-fill:#4caf50; -fx-font-weight:bold;"/>
